@@ -12,7 +12,7 @@ public class Client extends Person{
     @Column(name = "date_of_birth")
     private Date dateOfBirth;
 
-    @Column(name = "email")
+    @Column(name = "email", unique = true)
     private String email;
 
     @Embedded
@@ -26,10 +26,6 @@ public class Client extends Person{
         super(firstName, lastName);
         this.dateOfBirth = dateOfBirth;
         this.email = email;
-    }
-
-    public Client() {
-        super();
     }
 
     public String getEmail() {

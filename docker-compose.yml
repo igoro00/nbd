@@ -1,0 +1,27 @@
+services:
+  db:
+    image: postgres:18-alpine
+    restart: always
+    environment:
+      POSTGRES_DB: nbddb
+      POSTGRES_USER: nbd
+      POSTGRES_PASSWORD: nbdpassword
+    ports:
+      - "5432:5432"
+    volumes:
+      - nbd_pg:/var/lib/postgresql/data
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: pgadmin
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: example@example.com
+      PGADMIN_DEFAULT_PASSWORD: example
+    ports:
+      - "5050:80"
+    volumes:
+      - nbd_pgadmin_data:/var/lib/pgadmin
+
+volumes:
+  nbd_pg:
+  nbd_pgadmin_data:

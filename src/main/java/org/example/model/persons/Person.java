@@ -28,10 +28,6 @@ public abstract class Person {
         this.archived = false;
     }
 
-    public Person() {
-
-    }
-
     public UUID getId() {
         return id;
     }
@@ -42,6 +38,10 @@ public abstract class Person {
 
     public void setArchived(boolean archived) {
         this.archived = archived;
+    }
+
+    public void archive() {
+        this.setArchived(true);
     }
 
     public String getFirstName() {
