@@ -28,6 +28,10 @@ public abstract class Person {
         this.archived = false;
     }
 
+    public Person() {
+
+    }
+
     public UUID getId() {
         return id;
     }

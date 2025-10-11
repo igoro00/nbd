@@ -28,6 +28,10 @@ public class Client extends Person{
         this.email = email;
     }
 
+    public Client() {
+        super();
+    }
+
     public String getEmail() {
         return email;
     }
