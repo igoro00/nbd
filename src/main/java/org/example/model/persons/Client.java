@@ -1,7 +1,8 @@
 package org.example.model.persons;
 
 import jakarta.persistence.*;
-import org.example.Address;
+
+import org.example.model.Address;
 
 import java.util.Date;
 
@@ -17,7 +18,9 @@ public class Client extends Person{
     @Embedded
     private Address address;
 
-//    private ClientType clientType
+    @ManyToOne
+    @JoinColumn(name = "client_type", nullable = false)
+    private ClientType clientType;
 
     public Client(String firstName, String lastName, Date dateOfBirth, String email) {
         super(firstName, lastName);
