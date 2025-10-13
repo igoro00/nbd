@@ -22,4 +22,37 @@ public class Hall {
     private int seatsRow;
 
 
+    public Hall(String hallNumber, int seatsColumn, int seatsRow) {
+        this.hallNumber = hallNumber;
+        this.seatsColumn = seatsColumn;
+        this.seatsRow = seatsRow;
+    }
+
+    public Hall() {
+
+    }
+
+    public String getHallNumber() {
+        return hallNumber;
+    }
+
+    public void setHallNumber(String hallNumber) {
+        this.hallNumber = hallNumber;
+    }
+
+    public int getSeatsColumn() {
+        return seatsColumn;
+    }
+
+    public void setSeatsColumn(int seatsColumn) {
+        this.seatsColumn = seatsColumn;
+    }
+
+    public int getSeatsRow() {
+        return seatsRow;
+    }
+
+    public void setSeatsRow(int seatsRow) {
+        this.seatsRow = seatsRow;
+    }
 }
