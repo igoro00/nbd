@@ -5,7 +5,16 @@
              xsi:schemaLocation="http://jakarta.ee/xml/ns/persistence http://jakarta.ee/xml/ns/persistence/persistence_3_0.xsd">
     <persistence-unit name="POSTGRES_RENT_PU" transaction-type="RESOURCE_LOCAL">
         <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
+        <class>org.example.model.Address</class>
+        <class>org.example.model.persons.Client</class>
+        <class>org.example.model.persons.ClientType</class>
+        <class>org.example.model.persons.Director</class>
         <class>org.example.model.persons.Person</class>
+        <class>org.example.model.movie.ActionMovie</class>
+        <class>org.example.model.movie.Comedy</class>
+        <class>org.example.model.movie.Horror</class>
+        <class>org.example.model.movie.Movie</class>
+        <class>org.example.model.movie.SciFi</class>
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
         <shared-cache-mode>NONE</shared-cache-mode>
         <validation-mode>CALLBACK</validation-mode>
