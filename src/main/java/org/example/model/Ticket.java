@@ -51,7 +51,7 @@ public class Ticket {
 //        this.price = calculateRealPrice(); ---- TODO Logika ceny biletu
     }
 
-    // --- Gettery i settery ---
+
     public UUID getId() {
         return id;
     }
