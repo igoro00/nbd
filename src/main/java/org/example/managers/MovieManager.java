@@ -1,7 +1,12 @@
 package org.example.managers;
 
 import org.example.Repository;
+import org.example.model.movie.Movie;
 
 public class MovieManager {
     private final Repository<Movie> repository;
+
+    public MovieManager(Repository<Movie> repository) {
+        this.repository = repository;
+    }
 }
