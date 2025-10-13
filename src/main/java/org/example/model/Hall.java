@@ -12,5 +12,14 @@ public class Hall {
     @Column(name = "id")
     private UUID id;
 
+    @Column(name = "hall_number", nullable = false, unique = true)
+    private String hallNumber;
+
+    @Column(name = "seats_column", nullable = false)
+    private int seatsColumn;
+
+    @Column(name = "seats_row", nullable = false)
+    private int seatsRow;
+
 
 }

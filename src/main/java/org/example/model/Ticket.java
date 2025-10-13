@@ -14,8 +14,8 @@ public class Ticket {
     @Column(name = "id")
     private UUID id;
 
-    @Column(name = "seat_number", nullable = false)
-    private int seatNumber;
+    @Column(name = "seat_column", nullable = false)
+    private int seatColumn;
 
     @Column(name = "seat_row", nullable = false)
     private int seatRow;
@@ -42,7 +42,7 @@ public class Ticket {
     }
 
     public Ticket(int seatNumber, int seatRow, String hallNumber, Client client, Movie movie) {
-        this.seatNumber = seatNumber;
+        this.seatColumn = seatNumber;
         this.seatRow = seatRow;
         this.hallNumber = hallNumber;
         this.client = client;
@@ -56,13 +56,13 @@ public class Ticket {
         return id;
     }
 
-    public int getSeatNumber() {
-        return seatNumber;
+    public int getSeatColumn() {
+        return seatColumn;
     }
 
-    public void setSeatNumber(int seatNumber) {
+    public void setSeatColumn(int seatNumber) {
         if (seatNumber > 0) {
-            this.seatNumber = seatNumber;
+            this.seatColumn = seatNumber;
         }
     }
 
