@@ -113,7 +113,7 @@ public class Ticket {
     public void setMovie(Movie movie) {
         this.movie = movie;
     }
-//TODO Logika ceny biletu
+//TODO Logika ceny biletu dalej
 
 //    public double calculateRealPrice() {
 //        if (movie == null || client == null) {
