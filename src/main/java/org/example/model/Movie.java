@@ -1,4 +1,4 @@
-package org.example.model.movie;
+package org.example.model;
 
 import jakarta.persistence.*;
 import org.example.model.persons.Director;

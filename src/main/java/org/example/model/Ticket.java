@@ -2,7 +2,7 @@ package org.example.model;
 
 import jakarta.persistence.*;
 import org.example.model.persons.Client;
-import org.example.model.movie.Movie;
+
 import java.util.UUID;
 
 @Entity
