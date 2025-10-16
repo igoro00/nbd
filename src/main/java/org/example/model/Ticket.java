@@ -7,13 +7,7 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "tickets")
-public class Ticket {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(name = "id")
-    private UUID id;
-
+public class Ticket extends ModelEntity {
     @Column(name = "seat_column", nullable = false)
     private int seatColumn;
 
@@ -37,10 +31,6 @@ public class Ticket {
     @JoinColumn(name = "movie_id", nullable = false)
     private Movie movie;
 
-    public Ticket() {
-
-    }
-
     public Ticket(int seatNumber, int seatRow, String hallNumber, Client client, Movie movie) {
         this.seatColumn = seatNumber;
         this.seatRow = seatRow;
@@ -48,13 +38,7 @@ public class Ticket {
         this.client = client;
         this.movie = movie;
         this.active = true;
-//        this.price = calculateRealPrice(); ---- TODO Logika ceny biletu
-    }
-
-
-    public UUID getId() {
-        return id;
-    }
+}
 
     public int getSeatColumn() {
         return seatColumn;
@@ -113,22 +97,5 @@ public class Ticket {
     public void setMovie(Movie movie) {
         this.movie = movie;
     }
-//TODO Logika ceny biletu dalej
-
-//    public double calculateRealPrice() {
-//        if (movie == null || client == null) {
-//            return 0.0;
-//        }
-//
-//        double basePrice = movie.getBasicPrice();
-//        double discountedPrice = basePrice - client.applyDiscount(basePrice);
-//
-//        if (seatRow > 5) {
-//            double rowMultiplier = 1 + (0.05 * (seatRow - 5));
-//            return discountedPrice * rowMultiplier;
-//        } else {
-//            return discountedPrice;
-//        }
-//    }
 
 }

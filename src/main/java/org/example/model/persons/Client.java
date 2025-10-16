@@ -18,9 +18,6 @@ public class Client extends Person{
     @Embedded
     private Address address;
 
-    @ManyToOne
-    @JoinColumn(name = "client_type", nullable = false)
-    private ClientType clientType;
 
     public Client(String firstName, String lastName, Date dateOfBirth, String email) {
         super(firstName, lastName);

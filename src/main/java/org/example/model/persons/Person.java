@@ -3,8 +3,6 @@ package org.example.model.persons;
 import jakarta.persistence.*;
 import org.example.model.ModelEntity;
 
-import java.util.UUID;
-
 @Entity
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "type")

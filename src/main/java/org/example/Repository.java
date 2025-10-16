@@ -18,8 +18,9 @@ public class Repository<T extends ModelEntity> {
 
     private final Class<T> entityClass;
 
-    public Repository(Class<T> entityClass){
+    public Repository(Class<T> entityClass, EntityManager em){
         this.entityClass = entityClass;
+        this.em = em;
     }
 
     public T add(T element) {

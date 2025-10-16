@@ -5,54 +5,44 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "halls")
-public class Hall {
+public class Hall extends ModelEntity{
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(name = "id")
-    private UUID id;
+    @Column(name = "name", unique = true)
+    private String name;
 
-    @Column(name = "hall_number", nullable = false, unique = true)
-    private String hallNumber;
+    @Column(name = "columns")
+    private int columns;
 
-    @Column(name = "seats_column", nullable = false)
-    private int seatsColumn;
+    @Column(name = "rows")
+    private int rows;
 
-    @Column(name = "seats_row", nullable = false)
-    private int seatsRow;
-
-
-    public Hall(String hallNumber, int seatsColumn, int seatsRow) {
-        this.hallNumber = hallNumber;
-        this.seatsColumn = seatsColumn;
-        this.seatsRow = seatsRow;
+    public Hall(String name, int seatsColumn, int seatsRow) {
+        this.name = name;
+        this.columns = seatsColumn;
+        this.rows = seatsRow;
     }
 
-    public Hall() {
-
+    public String getName() {
+        return name;
     }
 
-    public String getHallNumber() {
-        return hallNumber;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public void setHallNumber(String hallNumber) {
-        this.hallNumber = hallNumber;
+    public int getColumns() {
+        return columns;
     }
 
-    public int getSeatsColumn() {
-        return seatsColumn;
+    public void setColumns(int columns) {
+        this.columns = columns;
     }
 
-    public void setSeatsColumn(int seatsColumn) {
-        this.seatsColumn = seatsColumn;
+    public int getRows() {
+        return rows;
     }
 
-    public int getSeatsRow() {
-        return seatsRow;
-    }
-
-    public void setSeatsRow(int seatsRow) {
-        this.seatsRow = seatsRow;
+    public void setRows(int rows) {
+        this.rows = rows;
     }
 }

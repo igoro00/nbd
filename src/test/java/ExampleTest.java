@@ -1,3 +1,6 @@
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.Persistence;
 import org.example.Repository;
 import org.example.managers.ClientManager;
 import org.example.model.persons.Client;
@@ -9,9 +12,6 @@ import org.testcontainers.utility.DockerImageName;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Assertions;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.time.LocalDate;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
@@ -19,8 +19,8 @@ import java.util.List;
 @Testcontainers
 class ExampleTest {
     @Container
-    private static PostgreSQLContainer postgresqlContainer = (PostgreSQLContainer) new
-            PostgreSQLContainer(DockerImageName.parse("postgres:17"))
+    private static PostgreSQLContainer<?> postgresqlContainer = new
+            PostgreSQLContainer<>(DockerImageName.parse("postgres:17"))
             .withDatabaseName("nbddb")
             .withUsername("nbd")
             .withPassword("nbdpassword")
@@ -31,7 +31,9 @@ class ExampleTest {
 
     @BeforeEach
     public void connect(){
-        this.clientRepository = new Repository<Client>(Client.class);
+        EntityManagerFactory emf = Persistence.createEntityManagerFactory("POSTGRES_CINEMA_PU");
+        EntityManager em = emf.createEntityManager();
+        this.clientRepository = new Repository<Client>(Client.class, em);
         this.clientManager = new ClientManager(clientRepository);
     }
 
@@ -53,12 +55,13 @@ class ExampleTest {
         Assertions.assertEquals("Doe", client.getLastName());
         Assertions.assertEquals(date, client.getDateOfBirth());
         Assertions.assertEquals("example@example.com", client.getEmail());
+
         List<Client> ClientList = clientManager.getAll();
-       Assertions.assertEquals(1, ClientList.size());
-       Assertions.assertEquals("John", ClientList.getFirst().getFirstName());
-       Assertions.assertEquals("Doe", ClientList.getFirst().getLastName());
-       Assertions.assertEquals(date, ClientList.getFirst().getDateOfBirth());
-       Assertions.assertEquals("example@example.com", ClientList.getFirst().getEmail());
+        Assertions.assertEquals(1, ClientList.size());
+        Assertions.assertEquals("John", ClientList.getFirst().getFirstName());
+        Assertions.assertEquals("Doe", ClientList.getFirst().getLastName());
+        Assertions.assertEquals(date, ClientList.getFirst().getDateOfBirth());
+        Assertions.assertEquals("example@example.com", ClientList.getFirst().getEmail());
     }
 
 }
