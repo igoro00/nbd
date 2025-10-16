@@ -14,6 +14,7 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.List;
 
 @Testcontainers
 class ExampleTest {
@@ -42,15 +43,22 @@ class ExampleTest {
 
     @Test
     void createUserTest() {
-        try {
-            clientManager.registerClient(
-                    "John",
-                    "Doe",
-                    (new SimpleDateFormat("yyyy-MM-dd")).parse("1978.0929"),
-                    "example@example.com"
-            );
-        } catch (ParseException e) {
-
-        }
+        Date date = new GregorianCalendar(1990, 0, 1).getTime();
+        Client client = clientManager.registerClient(
+                 "John",
+                 "Doe",
+                 date,
+                 "example@example.com");
+        Assertions.assertEquals("John", client.getFirstName());
+        Assertions.assertEquals("Doe", client.getLastName());
+        Assertions.assertEquals(date, client.getDateOfBirth());
+        Assertions.assertEquals("example@example.com", client.getEmail());
+        List<Client> ClientList = clientManager.getAll();
+       Assertions.assertEquals(1, ClientList.size());
+       Assertions.assertEquals("John", ClientList.getFirst().getFirstName());
+       Assertions.assertEquals("Doe", ClientList.getFirst().getLastName());
+       Assertions.assertEquals(date, ClientList.getFirst().getDateOfBirth());
+       Assertions.assertEquals("example@example.com", ClientList.getFirst().getEmail());
     }
+
 }
