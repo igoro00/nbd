@@ -1,5 +1,6 @@
 package org.example.managers;
 
+import jakarta.persistence.EntityManager;
 import org.example.Repository;
 import org.example.model.persons.Director;
 
@@ -9,8 +10,8 @@ import java.util.List;
 public class DirectorManager {
     private final Repository<Director> directorRepository;
 
-    public DirectorManager(Repository<Director> clientRepository) {
-        this.directorRepository = clientRepository;
+    public DirectorManager(EntityManager em) {
+        this.directorRepository = new Repository<Director>(Director.class, em);
     }
 
     public Director registerDirector(String firstName, String lastName) {

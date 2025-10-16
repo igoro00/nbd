@@ -1,25 +1,28 @@
 package org.example.model.persons;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import org.example.model.ModelEntity;
 
 @Entity
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "type")
 public abstract class Person extends ModelEntity {
-    @Column(name = "archived")
-    private boolean archived;
+    @NotNull
+    @Column(name = "archived", nullable = false)
+    private boolean archived = false;
 
-    @Column(name = "first_name")
+    @NotNull
+    @Column(name = "first_name", nullable = false)
     private String firstName;
 
-    @Column(name = "last_name")
+    @NotNull
+    @Column(name = "last_name", nullable = false)
     private String lastName;
 
     public Person(String firstName, String lastName){
         this.firstName = firstName;
         this.lastName = lastName;
-        this.archived = false;
     }
 
     public boolean isArchived() {

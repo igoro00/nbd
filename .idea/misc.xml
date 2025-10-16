@@ -2,6 +2,7 @@
 <project version="4">
   <component name="EntryPointsManager">
     <writeAnnotations>
+      <writeAnnotation name="jakarta.persistence.PersistenceContext" />
       <writeAnnotation name="org.testcontainers.junit.jupiter.Container" />
     </writeAnnotations>
   </component>
