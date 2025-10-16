@@ -1,18 +1,14 @@
 package org.example.model.persons;
 
 import jakarta.persistence.*;
+import org.example.model.ModelEntity;
 
 import java.util.UUID;
 
 @Entity
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "type")
-public abstract class Person {
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(name = "id")
-    private UUID id;
-
+public abstract class Person extends ModelEntity {
     @Column(name = "archived")
     private boolean archived;
 
@@ -26,10 +22,6 @@ public abstract class Person {
         this.firstName = firstName;
         this.lastName = lastName;
         this.archived = false;
-    }
-
-    public UUID getId() {
-        return id;
     }
 
     public boolean isArchived() {

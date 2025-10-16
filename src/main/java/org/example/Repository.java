@@ -1,68 +1,44 @@
 package org.example;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.TypedQuery;
+import org.example.model.ModelEntity;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
 
-public class Repository<T> {
+public class Repository<T extends ModelEntity> {
 
-    private List<T> elements;
+    private final EntityManager em;
 
-    // Konstruktor inicjalizujący pustą listę
-    public Repository() {
-        this.elements = new ArrayList<>();
+    public Repository(EntityManager em){
+        this.em = em;
     }
 
-    // Pobranie elementu po indeksie (id)
-    public T get(int id) {
-        if (id >= 0 && id < elements.size()) {
-            return elements.get(id);
-        }
-        return null; // Zwraca null, jeśli id jest poza zakresem
-    }
-
-    // Dodanie elementu do repozytorium
-    public boolean add(T element) {
-        return elements.add(element); // Zwraca true, jeśli dodanie się powiodło
-    }
-
-    // Wyszukiwanie elementu na podstawie predykatu
-    public T find(Predicate<T> predicate) {
-        for (T element : elements) {
-            if (predicate.test(element)) {
-                return element; // Zwraca pierwszy pasujący element
+    public T add(T element) {
+        try{
+            this.em.getTransaction().begin();
+            if (element.getId() == null){
+                em.persist(element);
+            } else {
+                element = em.merge(element);
             }
+            this.em.getTransaction().commit();
+            return element;
+        } catch (Exception e) {
+            this.em.getTransaction().rollback();
+            throw e;
         }
-        return null; // Zwraca null, jeśli żaden element nie spełnia warunku
     }
 
-    // Wyszukiwanie wszystkich elementów pasujących do predykatu
-    public List<T> findAll(Predicate<T> predicate) {
-        List<T> foundElements = new ArrayList<>();
-        for (T element : elements) {
-            if (predicate.test(element)) {
-                foundElements.add(element);
-            }
-        }
-        return foundElements;
+    public T findById(Long id) {
+        return em.find(T.class, id);
     }
 
-    // Raportowanie wszystkich elementów w repozytorium (jako string)
-    public String report() {
-        StringBuilder report = new StringBuilder("Repository Report:\n");
-        for (int i = 0; i < elements.size(); i++) {
-            report.append(i).append(": ").append(elements.get(i).toString()).append("\n");
-        }
-        return report.toString();
-    }
-
-    // Zwracanie rozmiaru repozytorium
-    public int size() {
-        return elements.size();
-    }
-
-    // Usuwanie elementu z repozytorium
-    public boolean remove(T element) {
-        return elements.remove(element); // Zwraca true, jeśli usunięcie się powiodło
+    public List<T> getAll() {
+        return null;
+        TypedQuery<T> query = em.createQuery("Select c from Client c", T.class);
+        return query.getResultList();
     }
 }

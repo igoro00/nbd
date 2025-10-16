@@ -10,13 +10,7 @@ import java.util.UUID;
 @Entity
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "type")
-
-public abstract class Movie {
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(name = "id")
-    private UUID id;
-
+public abstract class Movie extends ModelEntity{
     @Column(name = "title")
     private String title;
 
@@ -47,10 +41,6 @@ public abstract class Movie {
         this.basicPrice = basicPrice;
         this.director = director;
         this.archived = false;
-    }
-
-    public Movie() {
-
     }
 
     public String getTitle() {

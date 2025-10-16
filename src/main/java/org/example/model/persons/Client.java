@@ -43,4 +43,5 @@ public class Client extends Person{
     public void setDateOfBirth(Date dateOfBirth) {
         this.dateOfBirth = dateOfBirth;
     }
+
 }
