@@ -1,19 +1,25 @@
 package org.example;
 
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.TypedQuery;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Root;
+import jakarta.transaction.Transactional;
 import org.example.model.ModelEntity;
-
-import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Predicate;
+import java.util.UUID;
 
+@Transactional
 public class Repository<T extends ModelEntity> {
 
-    private final EntityManager em;
+    @PersistenceContext
+    private EntityManager em;
 
-    public Repository(EntityManager em){
-        this.em = em;
+    private final Class<T> entityClass;
+
+    public Repository(Class<T> entityClass){
+        this.entityClass = entityClass;
     }
 
     public T add(T element) {
@@ -32,13 +38,15 @@ public class Repository<T extends ModelEntity> {
         }
     }
 
-    public T findById(Long id) {
-        return em.find(T.class, id);
+    public T findById(UUID id) {
+        return em.find(entityClass, id);
     }
 
-    public List<T> getAll() {
-        return null;
-        TypedQuery<T> query = em.createQuery("Select c from Client c", T.class);
-        return query.getResultList();
+    public List<T> findAll() {
+        CriteriaBuilder cb = this.em.getCriteriaBuilder();
+        CriteriaQuery<T> cq = cb.createQuery(entityClass);
+        Root<T> rootEntry = cq.from(entityClass);
+        CriteriaQuery<T> all = cq.select(rootEntry);
+        return em.createQuery(all).getResultList();
     }
 }

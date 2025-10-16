@@ -1,16 +1,22 @@
+import org.example.Repository;
+import org.example.managers.ClientManager;
 import org.example.model.persons.Client;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Assertions;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.Date;
-
-import static org.junit.Assert.assertNotNull;
+import java.util.GregorianCalendar;
 
 @Testcontainers
-public class ExampleTest {
+class ExampleTest {
     @Container
     private static PostgreSQLContainer postgresqlContainer = (PostgreSQLContainer) new
             PostgreSQLContainer(DockerImageName.parse("postgres:17"))
@@ -19,9 +25,32 @@ public class ExampleTest {
             .withPassword("nbdpassword")
             .withExposedPorts(5432);
 
+    private Repository<Client> clientRepository;
+    private ClientManager clientManager;
+
+    @BeforeEach
+    public void connect(){
+        this.clientRepository = new Repository<Client>(Client.class);
+        this.clientManager = new ClientManager(clientRepository);
+    }
+
     @Test
-    public void costamTest(){
-        Client c = new Client("John", "Doe", new Date(), "john.doe@example.com");
-        System.out.println("hello from testcos");
+    void isRepository(){
+        Assertions.assertNotNull(clientRepository);
+        Assertions.assertNotNull(clientManager);
+    }
+
+    @Test
+    void createUserTest() {
+        try {
+            clientManager.registerClient(
+                    "John",
+                    "Doe",
+                    (new SimpleDateFormat("yyyy-MM-dd")).parse("1978.0929"),
+                    "example@example.com"
+            );
+        } catch (ParseException e) {
+
+        }
     }
 }
