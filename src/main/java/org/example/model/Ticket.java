@@ -38,10 +38,6 @@ public class Ticket extends ModelEntity {
     @Column(name = "price", nullable = false)
     private double price;
 
-    @NotNull
-    @Column(name = "active", nullable = false)
-    private boolean active = true;
-
     public Ticket(Movie movie, Client client, Hall hall, int seatColumn, int seatRow) {
         this.movie = movie;
         this.client = client;
@@ -86,14 +82,6 @@ public class Ticket extends ModelEntity {
 
     public double getPrice() {
         return price;
-    }
-
-    public boolean isActive() {
-        return active;
-    }
-
-    public void setActive(boolean active) {
-        this.active = active;
     }
 
     public Client getClient() {
