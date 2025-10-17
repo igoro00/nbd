@@ -20,10 +20,6 @@ public class TicketManager {
         return ticketRepository.add(newMovie);
     }
 
-    public Ticket getMovieByName(String name) {
-        throw new UnsupportedOperationException();
-    }
-
     public List<Ticket> getAll(){
         return ticketRepository.findAll();
     }

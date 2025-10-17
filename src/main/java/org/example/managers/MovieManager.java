@@ -23,7 +23,7 @@ public class MovieManager {
         this.screeningRepository = new ScreeningRepository(this.em);
     }
 
-    public Movie createMovie(String title, Date startShowDate, Duration timeDuration, String category, double basicPrice, Director director) {
+    public Movie createMovie(String title, Duration timeDuration, String category, double basicPrice, Director director) {
         Movie newMovie = new Movie(title, timeDuration, category, basicPrice, director);
         return movieRepository.add(newMovie);
     }
@@ -44,7 +44,7 @@ public class MovieManager {
             throw new IllegalArgumentException("There is already a screening in this hall at the given time.");
         }
         Screening newScreening = new Screening(movie, hall, screeningDate);
-        newScreening =  screeningRepository.add(newScreening);
+        newScreening =  screeningRepository.addWithoutTransaction(newScreening);
         em.getTransaction().commit();
         return newScreening;
     }

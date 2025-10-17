@@ -1,13 +1,8 @@
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;
-import org.example.managers.ClientManager;
-import org.example.managers.DirectorManager;
-import org.example.managers.MovieManager;
-import org.example.model.Address;
-import org.example.model.Movie;
-import org.example.model.Screening;
-import org.example.model.Ticket;
+import org.example.managers.*;
+import org.example.model.*;
 import org.example.model.persons.Client;
 import org.example.model.persons.Director;
 import org.junit.jupiter.api.Test;
@@ -26,6 +21,8 @@ class ExampleTest {
     private ClientManager clientManager;
     private MovieManager movieManager;
     private DirectorManager directorManager;
+    private HallManager hallManager;
+    private TicketManager ticketManager;
 
     @BeforeEach
     public void setUp(){
@@ -34,6 +31,8 @@ class ExampleTest {
         this.clientManager = new ClientManager(em);
         this.movieManager = new MovieManager(em);
         this.directorManager = new DirectorManager(em);
+        this.hallManager = new HallManager(em);
+        this.ticketManager = new TicketManager(em);
     }
 
     @Test
@@ -89,11 +88,9 @@ class ExampleTest {
     @Test
     void createMovieTest(){
         Director director = directorManager.registerDirector("Steven", "Spielberg");
-        Date date = new GregorianCalendar(1990, 0, 1).getTime();
         Duration duration = Duration.ofMinutes(120);
         Movie movie = movieManager.createMovie(
             "Inception",
-            date,
             duration,
             "Sci-Fi",
             10.0,
@@ -116,8 +113,9 @@ class ExampleTest {
     @Test
     void ticketTest() {
         Director director = directorManager.registerDirector("Steven", "Spielberg");
-        Movie movie = movieManager.createMovie("Jurassic Park", new Date(), Duration.ofMinutes(127), "Adventure", 15.0, director);
-        Screening screening = movieManager.createScreening(movie, null, new Date());
-        Ticket ticket = new Ticket();
+        Movie movie = movieManager.createMovie("Jurassic Park", Duration.ofMinutes(127), "Adventure", 15.0, director);
+        Hall hall = hallManager.createHall("sala",10, 10);
+        Date date = new GregorianCalendar(2000, Calendar.MARCH, 1, 15, 30).getTime();
+        Screening screening = movieManager.createScreening(movie, hall, date);
     }
 }
