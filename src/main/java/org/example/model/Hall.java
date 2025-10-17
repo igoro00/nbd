@@ -22,6 +22,8 @@ public class Hall extends ModelEntity{
         this.rows = seatsRow;
     }
 
+    public Hall(){}
+
     public String getName() {
         return name;
     }

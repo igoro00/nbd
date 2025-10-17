@@ -14,13 +14,9 @@ import java.util.List;
 
 public class MovieManager {
     private final Repository<Movie> movieRepository;
-    private final ScreeningRepository screeningRepository;
-    private final EntityManager em;
 
     public MovieManager(EntityManager em) {
-        this.em = em;
-        this.movieRepository = new Repository<Movie>(Movie.class, this.em);
-        this.screeningRepository = new ScreeningRepository(this.em);
+        this.movieRepository = new Repository<Movie>(Movie.class, em);
     }
 
     public Movie createMovie(String title, Duration timeDuration, String category, double basicPrice, Director director) {
@@ -36,16 +32,7 @@ public class MovieManager {
         return movieRepository.findAll();
     }
 
-    public Screening createScreening(Movie movie, Hall hall, Date screeningDate) {
-        em.getTransaction().begin();
-        List<Screening> collidingScreenings = screeningRepository.findByHallAndTime(hall, screeningDate, new Date(screeningDate.getTime() + movie.getTimeDuration().toMillis()));
-        if(!collidingScreenings.isEmpty()){
-            em.getTransaction().rollback();
-            throw new IllegalArgumentException("There is already a screening in this hall at the given time.");
-        }
-        Screening newScreening = new Screening(movie, hall, screeningDate);
-        newScreening =  screeningRepository.addWithoutTransaction(newScreening);
-        em.getTransaction().commit();
-        return newScreening;
+    public int getMovieCount() {
+        return movieRepository.countAll();
     }
 }

@@ -28,6 +28,8 @@ public class Screening extends ModelEntity {
         this.startDate = startDate;
     }
 
+    public Screening(){}
+
     public Movie getMovie() {
         return movie;
     }

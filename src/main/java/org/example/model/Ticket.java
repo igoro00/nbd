@@ -12,7 +12,7 @@ import java.util.UUID;
 @Table(
     name = "ticket",
     uniqueConstraints={
-        @UniqueConstraint(columnNames = {"movie_id", "hall_id", "seat_column", "seat_row"})
+        @UniqueConstraint(columnNames = {"screening_id", "seat_column", "seat_row"})
     }
 )
 public class Ticket extends ModelEntity {
@@ -39,10 +39,8 @@ public class Ticket extends ModelEntity {
     private double price;
 
     public Ticket(Screening screening, Client client, int seatColumn, int seatRow) {
-        this.screening = screening;
-        this.client = client;
-        this.seatColumn = seatColumn;
-        this.seatRow = seatRow;
+        this.setClient(client);
+        this.setScreening(screening, seatRow, seatColumn);
 }
 
     public int getSeatColumn() {

@@ -25,4 +25,8 @@ public class DirectorManager {
     public List<Director> getAll(){
         return directorRepository.findAll();
     }
+
+    public int getDirectorCount() {
+        return directorRepository.countAll();
+    }
 }

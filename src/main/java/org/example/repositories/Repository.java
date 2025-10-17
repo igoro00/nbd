@@ -41,6 +41,14 @@ public class Repository<T extends ModelEntity> {
         return em.find(entityClass, id);
     }
 
+    public int countAll() {
+        CriteriaBuilder cb = this.em.getCriteriaBuilder();
+        CriteriaQuery<Long> cq = cb.createQuery(Long.class);
+        Root<T> root = cq.from(entityClass);
+        cq.select(cb.count(root));
+        return this.em.createQuery(cq).getSingleResult().intValue();
+    }
+
     public List<T> findAll() {
         CriteriaBuilder cb = this.em.getCriteriaBuilder();
         CriteriaQuery<T> cq = cb.createQuery(entityClass);

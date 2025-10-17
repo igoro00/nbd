@@ -23,6 +23,7 @@ class ExampleTest {
     private DirectorManager directorManager;
     private HallManager hallManager;
     private TicketManager ticketManager;
+    private ScreeningManager screeningManager;
 
     @BeforeEach
     public void setUp(){
@@ -30,6 +31,7 @@ class ExampleTest {
         EntityManager em = emf.createEntityManager();
         this.clientManager = new ClientManager(em);
         this.movieManager = new MovieManager(em);
+        this.screeningManager = new ScreeningManager(em);
         this.directorManager = new DirectorManager(em);
         this.hallManager = new HallManager(em);
         this.ticketManager = new TicketManager(em);
@@ -111,11 +113,172 @@ class ExampleTest {
     }
 
     @Test
-    void ticketTest() {
+    void screeningTest() {
         Director director = directorManager.registerDirector("Steven", "Spielberg");
-        Movie movie = movieManager.createMovie("Jurassic Park", Duration.ofMinutes(127), "Adventure", 15.0, director);
+        Movie movie = movieManager.createMovie("Jurassic Park", Duration.ofMinutes(120), "Adventure", 15.0, director);
         Hall hall = hallManager.createHall("sala",10, 10);
-        Date date = new GregorianCalendar(2000, Calendar.MARCH, 1, 15, 30).getTime();
-        Screening screening = movieManager.createScreening(movie, hall, date);
+        Hall hall2 = hallManager.createHall("sala2",5,5);
+        Date date = new GregorianCalendar(2025, Calendar.MARCH, 1, 15, 30).getTime();
+
+        Assertions.assertEquals(0, screeningManager.getScreeningCount());
+
+        Assertions.assertDoesNotThrow(()-> {;
+            screeningManager.createScreening(movie, hall, date);
+        });
+
+        Assertions.assertEquals(1, screeningManager.getScreeningCount());
+
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            screeningManager.createScreening(movie, hall, date);
+        });
+
+        Assertions.assertEquals(1, screeningManager.getScreeningCount());
+
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            screeningManager.createScreening(movie, hall,
+                    new GregorianCalendar(
+                            2025, Calendar.MARCH, 1,
+                            16, 0
+                    ).getTime()
+            );
+        });
+
+        Assertions.assertEquals(1, screeningManager.getScreeningCount());
+
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            screeningManager.createScreening(movie, hall,
+                    new GregorianCalendar(
+                            2025, Calendar.MARCH, 1,
+                            17, 30
+                    ).getTime()
+            );
+        });
+
+        Assertions.assertEquals(1, screeningManager.getScreeningCount());
+
+        Assertions.assertDoesNotThrow(() -> {
+            screeningManager.createScreening(movie, hall,
+                    new GregorianCalendar(
+                            2025, Calendar.MARCH, 1,
+                            17, 31
+                    ).getTime()
+            );
+        });
+
+        Assertions.assertEquals(2, screeningManager.getScreeningCount());
+
+
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            screeningManager.createScreening(movie, hall,
+                    new GregorianCalendar(
+                            2025, Calendar.MARCH, 1,
+                            13, 30
+                    ).getTime()
+            );
+        });
+
+        Assertions.assertEquals(2, screeningManager.getScreeningCount());
+
+        Assertions.assertDoesNotThrow(() -> {
+            screeningManager.createScreening(movie, hall,
+                    new GregorianCalendar(
+                            2025, Calendar.MARCH, 1,
+                            13, 29
+                    ).getTime()
+            );
+        });
+
+        Assertions.assertEquals(3, screeningManager.getScreeningCount());
+
+        Movie longMovie = movieManager.createMovie(
+                "Resan (The Journey)",
+                Duration.ofMinutes(873),
+                "Documentary",
+                15.0,
+                directorManager.registerDirector("Peter", "Watkins")
+        );
+
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            screeningManager.createScreening(longMovie, hall,
+                    new GregorianCalendar(
+                            2025, Calendar.MARCH, 1,
+                            10, 0
+                    ).getTime()
+            );
+        });
+
+        Assertions.assertEquals(3, screeningManager.getScreeningCount());
+
+        Assertions.assertDoesNotThrow(() -> {
+            screeningManager.createScreening(movie, hall2,
+                    new GregorianCalendar(
+                            2025, Calendar.MARCH, 1,
+                            15, 30
+                    ).getTime()
+            );
+        });
+
+        Assertions.assertEquals(4, screeningManager.getScreeningCount());
+
+    }
+
+    @Test
+    void createHallTest(){
+        Hall hall = hallManager.createHall("Main Hall", 20, 15);
+        Assertions.assertEquals("Main Hall", hall.getName());
+        Assertions.assertEquals(20, hall.getColumns());
+        Assertions.assertEquals(15, hall.getRows());
+        List<Hall> hallList = hallManager.getAll();
+        Assertions.assertEquals(1, hallList.size());
+        Assertions.assertEquals("Main Hall", hallList.getFirst().getName());
+        Assertions.assertEquals(20, hallList.getFirst().getColumns());
+        Assertions.assertEquals(15, hallList.getFirst().getRows());
+    }
+
+    @Test
+    void createTicketTest() {
+        Director director = directorManager.registerDirector("Christopher", "Nolan");
+        Movie movie = movieManager.createMovie("Inception", Duration.ofMinutes(148), "Sci-Fi", 12.0, director);
+        Hall hall = hallManager.createHall("IMAX", 15, 10);
+        Date screeningDate = new GregorianCalendar(2024, Calendar.DECEMBER, 20, 20, 0).getTime();
+        Screening screening = screeningManager.createScreening(movie, hall, screeningDate);
+        Client client = clientManager.registerClient(
+                "Alice",
+                "Johnson",
+                "alice.johnson@example.com",
+                new GregorianCalendar(1990, Calendar.JANUARY, 5).getTime(),
+                new Address("New York", "10001", "5th Avenue", "1A")
+        );
+        Ticket ticket = ticketManager.createTicket(screening, client, 5, 7);
+        List<Ticket> ticketList = ticketManager.getAll();
+        Assertions.assertEquals(1, ticketList.size());
+        Assertions.assertEquals(screening, ticketList.getFirst().getScreening());
+        Assertions.assertEquals(client, ticketList.getFirst().getClient());
+        Assertions.assertEquals(7, ticketList.getFirst().getSeatColumn());
+        Assertions.assertEquals(5, ticketList.getFirst().getSeatRow());
+
+        Assertions.assertDoesNotThrow(()-> {;
+            ticketManager.createTicket(screening, client, 0, 0);
+        });
+
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            ticketManager.createTicket(screening, client, -1, 0);
+        });
+
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            ticketManager.createTicket(screening, client, 0, -1);
+        });
+
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            ticketManager.createTicket(screening, client, hall.getColumns(), 0);
+        });
+
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            ticketManager.createTicket(screening, client, 0, hall.getColumns());
+        });
+
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            ticketManager.createTicket(screening, client, 0, 0);
+        });
     }
 }

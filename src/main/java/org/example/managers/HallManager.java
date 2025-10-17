@@ -29,4 +29,7 @@ public class HallManager {
         return hallRepository.findAll();
     }
 
+    public int getHallCount() {
+        return hallRepository.countAll();
+    }
 }

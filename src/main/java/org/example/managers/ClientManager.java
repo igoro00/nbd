@@ -27,4 +27,8 @@ public class ClientManager {
     public List<Client> getAll(){
         return clientRepository.findAll();
     }
+
+    public int getClientCount() {
+        return clientRepository.countAll();
+    }
 }

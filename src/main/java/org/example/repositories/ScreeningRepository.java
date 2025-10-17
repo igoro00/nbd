@@ -19,18 +19,20 @@ public class ScreeningRepository extends Repository<Screening> {
         CriteriaQuery<Screening> query = cb.createQuery(Screening.class);
         Root<Screening> screening = query.from(Screening.class);
         Join<Screening, Movie> movie = screening.join("movie");
-        Expression<Date> endDate = cb.function(
-        "CAST",
-        Date.class,
-        cb.function("(?1 + (?2 * interval '1 second'))", Date.class,
-        screening.get("startDate"),
-        movie.get("timeDuration"))
-        );
         query.select(screening).where(
-                cb.not(cb.or(
-                        cb.lessThan(endDate, startTime),
-                        cb.greaterThan(screening.get("startDate"), endTime))
-                )
+            cb.not(cb.or(
+                cb.lessThan(
+                        cb.function(
+                                "date_add",
+                                Date.class,
+                                screening.get("startDate"),
+                                movie.get("timeDuration")
+                        ),
+                        startTime
+                ),
+                cb.greaterThan(screening.get("startDate"), endTime))
+            ),
+            cb.equal(screening.get("hall"), hall)
         );
         return this.getEM().createQuery(query).getResultList();
     }

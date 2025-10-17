@@ -26,6 +26,8 @@ public abstract class Person extends ModelEntity {
         this.lastName = lastName;
     }
 
+    public Person(){}
+
     public boolean isArchived() {
         return archived;
     }
