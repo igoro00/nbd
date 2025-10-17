@@ -3,6 +3,7 @@ package org.example.model;
 import jakarta.persistence.*;
 
 @Embeddable
+@Table(name = "address")
 public class Address {
     @Column(name = "city")
     private String city;

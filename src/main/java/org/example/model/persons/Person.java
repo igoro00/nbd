@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import org.example.model.ModelEntity;
 
 @Entity
+@Table(name="person")
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "type")
 public abstract class Person extends ModelEntity {

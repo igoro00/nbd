@@ -1,19 +1,17 @@
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;
-import org.example.Repository;
 import org.example.managers.ClientManager;
 import org.example.managers.DirectorManager;
 import org.example.managers.MovieManager;
 import org.example.model.Address;
 import org.example.model.Movie;
+import org.example.model.Screening;
+import org.example.model.Ticket;
 import org.example.model.persons.Client;
 import org.example.model.persons.Director;
 import org.junit.jupiter.api.Test;
-import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import org.testcontainers.utility.DockerImageName;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Assertions;
 
@@ -25,25 +23,14 @@ import java.util.List;
 
 @Testcontainers
 class ExampleTest {
-    @Container
-    private static PostgreSQLContainer<?> postgresqlContainer = new
-            PostgreSQLContainer<>(DockerImageName.parse("postgres:17"))
-            .withDatabaseName("nbddb")
-            .withUsername("nbd")
-            .withPassword("nbdpassword")
-            .withExposedPorts(5432);
-
     private ClientManager clientManager;
-    private Repository<Movie> movieRepository;
     private MovieManager movieManager;
-    private Repository<Director> directorRepository;
     private DirectorManager directorManager;
 
     @BeforeEach
-    public void connect(){
+    public void setUp(){
         EntityManagerFactory emf = Persistence.createEntityManagerFactory("POSTGRES_CINEMA_PU");
         EntityManager em = emf.createEntityManager();
-
         this.clientManager = new ClientManager(em);
         this.movieManager = new MovieManager(em);
         this.directorManager = new DirectorManager(em);
@@ -113,7 +100,6 @@ class ExampleTest {
             director
             );
         Assertions.assertEquals("Inception", movie.getTitle());
-        Assertions.assertEquals(date, movie.getStartShowDate());
         Assertions.assertEquals(duration, movie.getTimeDuration());
         Assertions.assertEquals("Sci-Fi", movie.getCategory());
         Assertions.assertEquals(10.0, movie.getBasicPrice());
@@ -121,11 +107,17 @@ class ExampleTest {
         List<Movie> movieList = movieManager.getAll();
         Assertions.assertEquals(1, movieList.size());
         Assertions.assertEquals("Inception", movieList.getFirst().getTitle());
-        Assertions.assertEquals(date, movieList.getFirst().getStartShowDate());
         Assertions.assertEquals(duration, movieList.getFirst().getTimeDuration());
         Assertions.assertEquals("Sci-Fi", movieList.getFirst().getCategory());
         Assertions.assertEquals(10.0, movieList.getFirst().getBasicPrice());
         Assertions.assertEquals(director, movieList.getFirst().getDirector());
     }
 
+    @Test
+    void ticketTest() {
+        Director director = directorManager.registerDirector("Steven", "Spielberg");
+        Movie movie = movieManager.createMovie("Jurassic Park", new Date(), Duration.ofMinutes(127), "Adventure", 15.0, director);
+        Screening screening = movieManager.createScreening(movie, null, new Date());
+        Ticket ticket = new Ticket();
+    }
 }

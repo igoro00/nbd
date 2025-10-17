@@ -1,10 +1,9 @@
 package org.example.managers;
 
 import jakarta.persistence.EntityManager;
-import org.example.Repository;
+import org.example.repositories.Repository;
 import org.example.model.persons.Director;
 
-import java.util.Date;
 import java.util.List;
 
 public class DirectorManager {

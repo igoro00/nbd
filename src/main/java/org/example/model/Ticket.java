@@ -9,7 +9,12 @@ import org.example.model.persons.Client;
 import java.util.UUID;
 
 @Entity
-@Table(name = "tickets")
+@Table(
+    name = "ticket",
+    uniqueConstraints={
+        @UniqueConstraint(columnNames = {"movie_id", "hall_id", "seat_column", "seat_row"})
+    }
+)
 public class Ticket extends ModelEntity {
     @NotNull
     @ManyToOne
@@ -18,13 +23,8 @@ public class Ticket extends ModelEntity {
 
     @NotNull
     @ManyToOne
-    @JoinColumn(name = "movie_id", nullable = false)
-    private Movie movie;
-
-    @NotNull
-    @ManyToOne()
-    @JoinColumn(name = "hall_id", nullable = false)
-    private Hall hall;
+    @JoinColumn(name = "screening_id", nullable = false)
+    private Screening screening;
 
     @NotNull
     @Column(name = "seat_column", nullable = false)
@@ -38,10 +38,9 @@ public class Ticket extends ModelEntity {
     @Column(name = "price", nullable = false)
     private double price;
 
-    public Ticket(Movie movie, Client client, Hall hall, int seatColumn, int seatRow) {
-        this.movie = movie;
+    public Ticket(Screening screening, Client client, int seatColumn, int seatRow) {
+        this.screening = screening;
         this.client = client;
-        this.hall = hall;
         this.seatColumn = seatColumn;
         this.seatRow = seatRow;
 }
@@ -51,7 +50,7 @@ public class Ticket extends ModelEntity {
     }
 
     public void setSeatColumn(int seatColumn) {
-        if (seatColumn < 0 || seatColumn >= this.hall.getColumns()) {
+        if (seatColumn < 0 || seatColumn >= this.getScreening().getHall().getColumns()) {
             throw new IllegalArgumentException("Seat column value is outside Hall bounds");
         }
 
@@ -63,19 +62,19 @@ public class Ticket extends ModelEntity {
     }
 
     public void setSeatRow(int seatRow) {
-        if (seatRow < 0 || seatRow >= this.hall.getRows()) {
+        if (seatRow < 0 || seatRow >= this.getScreening().getHall().getRows()) {
             throw new IllegalArgumentException("Seat row value is outside Hall bounds");
         }
 
         this.seatRow = seatRow;
     }
 
-    public Hall getHall() {
-        return this.hall;
+    public Screening getScreening() {
+        return this.screening;
     }
 
-    public void setHall(Hall hall, int seatRow, int seatColumn) {
-        this.hall = hall;
+    public void setScreening(Screening screening, int seatRow, int seatColumn) {
+        this.screening = screening;
         this.setSeatRow(seatRow);
         this.setSeatColumn(seatColumn);
     }
@@ -91,13 +90,4 @@ public class Ticket extends ModelEntity {
     public void setClient(Client client) {
         this.client = client;
     }
-
-    public Movie getMovie() {
-        return movie;
-    }
-
-    public void setMovie(Movie movie) {
-        this.movie = movie;
-    }
-
 }

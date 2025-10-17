@@ -1,7 +1,7 @@
 package org.example.managers;
 
 import jakarta.persistence.EntityManager;
-import org.example.Repository;
+import org.example.repositories.Repository;
 import org.example.model.Address;
 import org.example.model.persons.Client;
 
@@ -12,7 +12,7 @@ public class ClientManager {
     private final Repository<Client> clientRepository;
 
     public ClientManager(EntityManager em) {
-        this.clientRepository = new Repository<Client>(Client.class, em);;
+        this.clientRepository = new Repository<Client>(Client.class, em);
     }
 
     public Client registerClient(String firstName, String lastName, String email, Date dateOfBirth, Address address) {

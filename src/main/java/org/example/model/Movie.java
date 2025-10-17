@@ -1,23 +1,22 @@
 package org.example.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import org.example.model.persons.Director;
 
 import java.time.Duration;
-import java.util.Date;
-import java.util.UUID;
+import io.hypersistence.utils.hibernate.type.interval.PostgreSQLIntervalType;
+import org.hibernate.annotations.Type;
+
 
 @Entity
-@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-@DiscriminatorColumn(name = "type")
+@Table(name = "movie")
 public class Movie extends ModelEntity{
     @Column(name = "title")
     private String title;
 
-    @Column(name = "start_show_date")
-    private Date startShowDate;
-
-    @Column(name = "time_duration")
+    @Type(PostgreSQLIntervalType.class)
+    @Column(name = "time_duration", columnDefinition = "interval")
     private Duration timeDuration;
 
     @Column(name = "category")
@@ -26,6 +25,7 @@ public class Movie extends ModelEntity{
     @Column(name = "basic_price")
     private double basicPrice;
 
+    @NotNull
     @ManyToOne
     @JoinColumn(name = "director_id", nullable = false)
     private Director director;
@@ -33,9 +33,8 @@ public class Movie extends ModelEntity{
     @Column(name = "archived")
     private boolean archived;
 
-    public Movie(String title, Date startShowDate, Duration timeDuration, String category, double basicPrice, Director director) {
+    public Movie(String title, Duration timeDuration, String category, double basicPrice, Director director) {
         this.title = title;
-        this.startShowDate = startShowDate;
         this.timeDuration = timeDuration;
         this.category = category;
         this.basicPrice = basicPrice;
@@ -53,14 +52,6 @@ public class Movie extends ModelEntity{
 
     public void setTitle(String title) {
         this.title = title;
-    }
-
-    public Date getStartShowDate() {
-        return startShowDate;
-    }
-
-    public void setStartShowDate(Date startShowDate) {
-        this.startShowDate = startShowDate;
     }
 
     public Duration getTimeDuration() {

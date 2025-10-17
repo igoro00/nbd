@@ -12,6 +12,7 @@
         <class>org.example.model.ModelEntity</class>
         <class>org.example.model.Movie</class>
         <class>org.example.model.Ticket</class>
+        <class>org.example.model.Screening</class>
         <class>org.example.model.Hall</class>
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
         <shared-cache-mode>NONE</shared-cache-mode>

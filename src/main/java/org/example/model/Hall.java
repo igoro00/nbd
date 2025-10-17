@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import java.util.UUID;
 
 @Entity
-@Table(name = "halls")
+@Table(name = "hall")
 public class Hall extends ModelEntity{
 
     @Column(name = "name", unique = true)
