@@ -1,28 +1,38 @@
 package org.example.model;
 
-import jakarta.persistence.*;
-import java.util.UUID;
+import org.bson.codecs.pojo.annotations.BsonCreator;
+import org.bson.codecs.pojo.annotations.BsonProperty;
+import org.bson.types.ObjectId;
 
-@Entity
-@Table(name = "hall")
-public class Hall extends ModelEntity{
+public class Hall extends AbstractEntity{
 
-    @Column(name = "name", unique = true)
+    @BsonProperty("name")
     private String name;
 
-    @Column(name = "columns")
+    @BsonProperty("columns")
     private int columns;
 
-    @Column(name = "rows")
+    @BsonProperty("rows")
     private int rows;
 
     public Hall(String name, int seatsColumn, int seatsRow) {
+        super(new ObjectId());
         this.name = name;
         this.columns = seatsColumn;
         this.rows = seatsRow;
     }
 
-    public Hall(){}
+    @BsonCreator
+    public Hall(
+            @BsonProperty("_id") ObjectId entityId,
+            @BsonProperty("name") String name,
+            @BsonProperty("columns") int columns,
+            @BsonProperty("rows") int rows) {
+        super(entityId);
+        this.name = name;
+        this.columns = columns;
+        this.rows = rows;
+    }
 
     public String getName() {
         return name;

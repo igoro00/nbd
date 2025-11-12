@@ -3,8 +3,8 @@ import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;
 import org.example.managers.*;
 import org.example.model.*;
-import org.example.model.persons.Client;
-import org.example.model.persons.Director;
+import org.example.model.Client;
+import org.example.model.Director;
 import org.junit.jupiter.api.Test;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.junit.jupiter.api.BeforeEach;
@@ -99,14 +99,14 @@ class ExampleTest {
             director
             );
         Assertions.assertEquals("Inception", movie.getTitle());
-        Assertions.assertEquals(duration, movie.getTimeDuration());
+        Assertions.assertEquals(duration, movie.getDuration());
         Assertions.assertEquals("Sci-Fi", movie.getCategory());
         Assertions.assertEquals(10.0, movie.getBasicPrice());
         Assertions.assertEquals(director, movie.getDirector());
         List<Movie> movieList = movieManager.getAll();
         Assertions.assertEquals(1, movieList.size());
         Assertions.assertEquals("Inception", movieList.getFirst().getTitle());
-        Assertions.assertEquals(duration, movieList.getFirst().getTimeDuration());
+        Assertions.assertEquals(duration, movieList.getFirst().getDuration());
         Assertions.assertEquals("Sci-Fi", movieList.getFirst().getCategory());
         Assertions.assertEquals(10.0, movieList.getFirst().getBasicPrice());
         Assertions.assertEquals(director, movieList.getFirst().getDirector());

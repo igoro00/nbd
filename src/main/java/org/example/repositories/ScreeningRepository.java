@@ -1,7 +1,5 @@
 package org.example.repositories;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.criteria.*;
 import org.example.model.Hall;
 import org.example.model.Movie;
 import org.example.model.Screening;

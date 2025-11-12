@@ -1,30 +1,33 @@
 package org.example.model;
 
-import jakarta.persistence.*;
+import org.bson.codecs.pojo.annotations.BsonCreator;
+import org.bson.codecs.pojo.annotations.BsonProperty;
 
-@Embeddable
-@Table(name = "address")
 public class Address {
-    @Column(name = "city")
+    @BsonProperty("city")
     private String city;
 
-    @Column(name = "zip_code")
+    @BsonProperty("zip_code")
     private String zipCode;
 
-    @Column(name = "street")
+    @BsonProperty("street")
     private String street;
 
-    @Column(name = "number")
+    @BsonProperty("number")
     private String number;
 
-    public Address(String city, String zipCode, String street, String number) {
+    @BsonCreator
+    public Address(
+            @BsonProperty("city") String city,
+            @BsonProperty("zip_code") String zipCode,
+            @BsonProperty("street") String street,
+            @BsonProperty("number") String number
+    ) {
         this.city = city;
         this.zipCode = zipCode;
         this.street = street;
         this.number = number;
     }
-
-    public Address(){}
 
     public String getCity() {
         return city;

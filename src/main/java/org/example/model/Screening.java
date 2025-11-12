@@ -1,34 +1,39 @@
 package org.example.model;
 
-import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
+import org.bson.codecs.pojo.annotations.BsonCreator;
+import org.bson.codecs.pojo.annotations.BsonProperty;
+import org.bson.types.ObjectId;
 
 import java.util.Date;
 
-@Entity
-@Table(name = "screening")
-public class Screening extends ModelEntity {
-    @NotNull
-    @ManyToOne
-    @JoinColumn(name="movie_id", nullable = false)
+public class Screening extends AbstractEntity {
+    @BsonProperty("movie")
     private Movie movie;
 
-    @NotNull
-    @ManyToOne
-    @JoinColumn(name="hall_id", nullable = false)
+    @BsonProperty("hall")
     private Hall hall;
 
-    @NotNull
-    @Column(name="start_date", nullable = false)
+    @BsonProperty("start_date")
     private Date startDate;
 
-    public Screening(Movie movie, Hall hall, Date startDate) {
+    @BsonCreator
+    public Screening(
+            @BsonProperty("_id") ObjectId entityId,
+            @BsonProperty("movie") Movie movie,
+            @BsonProperty("hall") Hall hall,
+            @BsonProperty("start_data") Date startDate) {
+        super(entityId);
         this.hall = hall;
         this.movie = movie;
         this.startDate = startDate;
     }
 
-    public Screening(){}
+    public Screening(Movie movie, Hall hall, Date startDate) {
+        super(new ObjectId());
+        this.hall = hall;
+        this.movie = movie;
+        this.startDate = startDate;
+    }
 
     public Movie getMovie() {
         return movie;

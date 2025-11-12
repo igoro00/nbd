@@ -29,7 +29,7 @@ public class ScreeningManager {
 
     public Screening createScreening(Movie movie, Hall hall, Date screeningDate) {
         em.getTransaction().begin();
-        List<Screening> collidingScreenings = screeningRepository.findByHallAndTime(hall, screeningDate, new Date(screeningDate.getTime() + movie.getTimeDuration().toMillis()));
+        List<Screening> collidingScreenings = screeningRepository.findByHallAndTime(hall, screeningDate, new Date(screeningDate.getTime() + movie.getDuration().toMillis()));
         if(!collidingScreenings.isEmpty()){
             em.getTransaction().rollback();
             throw new IllegalArgumentException("There is already a screening in this hall at the given time.");

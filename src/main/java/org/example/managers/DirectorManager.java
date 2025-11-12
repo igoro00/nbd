@@ -2,7 +2,7 @@ package org.example.managers;
 
 import jakarta.persistence.EntityManager;
 import org.example.repositories.Repository;
-import org.example.model.persons.Director;
+import org.example.model.Director;
 
 import java.util.List;
 

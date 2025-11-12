@@ -3,7 +3,7 @@ package org.example.managers;
 import jakarta.persistence.EntityManager;
 import org.example.repositories.Repository;
 import org.example.model.Address;
-import org.example.model.persons.Client;
+import org.example.model.Client;
 
 import java.util.Date;
 import java.util.List;

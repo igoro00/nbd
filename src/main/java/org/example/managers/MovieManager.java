@@ -2,14 +2,10 @@ package org.example.managers;
 
 import jakarta.persistence.EntityManager;
 import org.example.repositories.Repository;
-import org.example.model.Hall;
 import org.example.model.Movie;
-import org.example.model.Screening;
-import org.example.model.persons.Director;
-import org.example.repositories.ScreeningRepository;
+import org.example.model.Director;
 
 import java.time.Duration;
-import java.util.Date;
 import java.util.List;
 
 public class MovieManager {

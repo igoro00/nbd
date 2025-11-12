@@ -5,7 +5,7 @@ import jakarta.persistence.RollbackException;
 import org.example.repositories.Repository;
 import org.example.model.Screening;
 import org.example.model.Ticket;
-import org.example.model.persons.Client;
+import org.example.model.Client;
 
 import java.util.List;
 

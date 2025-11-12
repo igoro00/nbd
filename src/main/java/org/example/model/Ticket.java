@@ -1,47 +1,39 @@
 package org.example.model;
 
-import jakarta.persistence.*;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotNull;
-import org.example.model.persons.Client;
+import org.bson.codecs.pojo.annotations.BsonCreator;
+import org.bson.codecs.pojo.annotations.BsonProperty;
+import org.bson.types.ObjectId;
 
-import java.util.UUID;
-
-@Entity
-@Table(
-    name = "ticket",
-    uniqueConstraints={
-        @UniqueConstraint(columnNames = {"screening_id", "seat_column", "seat_row"})
-    }
-)
-public class Ticket extends ModelEntity {
-    @NotNull
-    @ManyToOne
-    @JoinColumn(name = "client_id", nullable = false)
+public class Ticket extends AbstractEntity {
+    @BsonProperty("client")
     private Client client;
 
-    @NotNull
-    @ManyToOne
-    @JoinColumn(name = "screening_id", nullable = false)
+    @BsonProperty("screening")
     private Screening screening;
 
-    @NotNull
-    @Column(name = "seat_column", nullable = false)
+    @BsonProperty("seat_column")
     private int seatColumn;
 
-    @NotNull
-    @Column(name = "seat_row", nullable = false)
+    @BsonProperty("seat_row")
     private int seatRow;
 
-    @NotNull
-    @Column(name = "price", nullable = false)
-    private double price;
-
-    public Ticket(Screening screening, Client client, int seatColumn, int seatRow) {
+    @BsonCreator
+    public Ticket(
+            @BsonProperty("_id") ObjectId entityId,
+            @BsonProperty("screening") Screening screening,
+            @BsonProperty("client") Client client,
+            @BsonProperty("seat_column") int seatColumn,
+            @BsonProperty("seat_row") int seatRow) {
+        super(entityId);
         this.setClient(client);
         this.setScreening(screening, seatRow, seatColumn);
-}
+    }
+
+    public Ticket(Screening screening, Client client, int seatColumn, int seatRow) {
+        super(new ObjectId());
+        this.setClient(client);
+        this.setScreening(screening, seatRow, seatColumn);
+    }
 
     public int getSeatColumn() {
         return seatColumn;
@@ -75,10 +67,6 @@ public class Ticket extends ModelEntity {
         this.screening = screening;
         this.setSeatRow(seatRow);
         this.setSeatColumn(seatColumn);
-    }
-
-    public double getPrice() {
-        return price;
     }
 
     public Client getClient() {
