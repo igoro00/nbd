@@ -101,6 +101,7 @@ services:
 
 networks:
   mongonet:
+    driver: bridge
 
 volumes:
   mongo-db-data-1:

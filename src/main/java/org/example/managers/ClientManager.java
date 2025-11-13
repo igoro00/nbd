@@ -1,7 +1,6 @@
 package org.example.managers;
 
-import jakarta.persistence.EntityManager;
-import org.example.repositories.Repository;
+import org.example.repositories.ClientRepository;
 import org.example.model.Address;
 import org.example.model.Client;
 
@@ -9,10 +8,10 @@ import java.util.Date;
 import java.util.List;
 
 public class ClientManager {
-    private final Repository<Client> clientRepository;
+    private final ClientRepository clientRepository;
 
-    public ClientManager(EntityManager em) {
-        this.clientRepository = new Repository<Client>(Client.class, em);
+    public ClientManager(ClientRepository repo) {
+        this.clientRepository = repo;
     }
 
     public Client registerClient(String firstName, String lastName, String email, Date dateOfBirth, Address address) {
@@ -20,15 +19,15 @@ public class ClientManager {
         return clientRepository.add(newClient);
     }
 
-    public void unregisterClient(Client client) {
-        client.archive();
-    }
-
+//    public void unregisterClient(Client client) {
+//        client.archive();
+//    }
+//
     public List<Client> getAll(){
         return clientRepository.findAll();
     }
 
-    public int getClientCount() {
+    public long getClientCount() {
         return clientRepository.countAll();
     }
 }

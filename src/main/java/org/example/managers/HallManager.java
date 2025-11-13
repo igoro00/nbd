@@ -1,15 +1,12 @@
 package org.example.managers;
 
-import jakarta.persistence.EntityManager;
 import org.example.model.Hall;
-import org.example.repositories.Repository;
 
 import java.util.List;
 import java.util.UUID;
 
 public class HallManager {
     private final Repository<Hall> hallRepository;
-    private final EntityManager em;
 
     public HallManager(EntityManager em) {
         this.em = em;

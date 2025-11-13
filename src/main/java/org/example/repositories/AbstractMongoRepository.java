@@ -12,10 +12,11 @@ import org.bson.codecs.configuration.CodecRegistries;
 import org.bson.codecs.configuration.CodecRegistry;
 import org.bson.codecs.pojo.Conventions;
 import org.bson.codecs.pojo.PojoCodecProvider;
+import org.example.model.AbstractEntity;
 
 import java.util.List;
 
-public abstract class AbstractMongoRepository implements AutoCloseable {
+public abstract class AbstractMongoRepository<T extends AbstractEntity> implements AutoCloseable {
     private final ConnectionString connectionString = new ConnectionString(
             "mongodb://localhost:27017,localhost:27018,localhost:27019/?replicaSet=replica_set_single");
     private final MongoCredential credential = MongoCredential.createCredential(
@@ -51,9 +52,19 @@ public abstract class AbstractMongoRepository implements AutoCloseable {
         return mongoClient.startSession();
     }
 
+    public MongoDatabase getMongoDatabase() {
+        return mongoDatabase;
+    }
+
+    public abstract T add(T entity);
+
+    public abstract List<T> findAll();
+
+    public abstract long countAll();
+
     @Override
     public void close() {
-        mongoDatabase.drop();
+//        mongoDatabase.drop();
         mongoClient.close();
     }
 }
