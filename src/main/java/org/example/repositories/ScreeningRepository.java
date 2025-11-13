@@ -1,15 +1,37 @@
 package org.example.repositories;
 
+import com.mongodb.client.MongoCollection;
 import org.example.model.Hall;
 import org.example.model.Movie;
 import org.example.model.Screening;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class ScreeningRepository extends Repository<Screening> {
-    public ScreeningRepository(EntityManager em) {
-        super(Screening.class, em);
+public class ScreeningRepository extends AbstractMongoRepository<Screening> {
+    private final MongoCollection<Screening> collection;
+    public ScreeningRepository() {
+        super();
+        collection = getMongoDatabase().getCollection("screenings", Screening.class);
+    }
+
+    @Override
+    public Screening add(Screening entity) {
+        collection.insertOne(entity);
+        return entity;
+    }
+
+    @Override
+    public List<Screening> findAll() {
+        ArrayList<Screening> screenings = new ArrayList<>();
+        collection.find().into(screenings);
+        return screenings;
+    }
+
+    @Override
+    public long countAll() {
+        return collection.countDocuments();
     }
 
     public List<Screening> findByHallAndTime(Hall hall, Date startTime, Date endTime) {

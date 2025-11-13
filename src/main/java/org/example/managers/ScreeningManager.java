@@ -2,7 +2,6 @@ package org.example.managers;
 
 import jakarta.persistence.EntityManager;
 import org.example.model.Hall;
-import org.example.model.Movie;
 import org.example.model.Screening;
 import org.example.repositories.ScreeningRepository;
 
