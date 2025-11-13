@@ -60,4 +60,16 @@ public class Address {
     public void setNumber(String number) {
         this.number = number;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Address address = (Address) o;
+        if (!city.equals(address.city)) return false;
+        if (!zipCode.equals(address.zipCode)) return false;
+        if (!street.equals(address.street)) return false;
+        if (!number.equals(address.number)) return false;
+        return true;
+    }
 }

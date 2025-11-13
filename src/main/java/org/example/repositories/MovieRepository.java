@@ -1,6 +1,7 @@
 package org.example.repositories;
 
 import com.mongodb.client.MongoCollection;
+import org.bson.Document;
 import org.example.model.Movie;
 
 import java.util.ArrayList;
@@ -23,14 +24,19 @@ public class MovieRepository extends AbstractMongoRepository<Movie>{
 
     @Override
     public List<Movie> findAll() {
-        ArrayList<Movie> movies = new ArrayList<>();
-        collection.find().into(movies);
-        return movies;
+        ArrayList<Movie> arr = new ArrayList<>();
+        collection.find().into(arr);
+        return arr;
     }
 
     @Override
     public long countAll() {
         return collection.countDocuments();
+    }
+
+    @Override
+    public void deleteAll() {
+        collection.deleteMany(new Document());
     }
 }
 

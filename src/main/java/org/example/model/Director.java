@@ -33,4 +33,14 @@ public class Director {
     public void setLastName(String lastName) {
         this.lastName = lastName;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Director director = (Director) o;
+        if (!firstName.equals(director.firstName)) return false;
+        if (!lastName.equals(director.lastName)) return false;
+        return true;
+    }
 }

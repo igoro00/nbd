@@ -57,4 +57,16 @@ public class Hall extends AbstractEntity{
     public void setRows(int rows) {
         this.rows = rows;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null) return false;
+        if (getClass() != o.getClass()) return false;
+        Hall hall = (Hall) o;
+        if (!name.equals(hall.name)) return false;
+        if (columns != hall.columns) return false;
+        if (rows != hall.rows) return false;
+        return true;
+    }
 }

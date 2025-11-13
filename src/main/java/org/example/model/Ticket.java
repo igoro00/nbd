@@ -76,4 +76,20 @@ public class Ticket extends AbstractEntity {
     public void setClient(Client client) {
         this.client = client;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null) return false;
+        if (getClass() != o.getClass()) return false;
+
+        Ticket ticket = (Ticket) o;
+
+        if (seatColumn != ticket.seatColumn) return false;
+        if (seatRow != ticket.seatRow) return false;
+        if (!client.equals(ticket.client)) return false;
+        if (!screening.equals(ticket.screening)) return false;
+
+        return true;
+    }
 }

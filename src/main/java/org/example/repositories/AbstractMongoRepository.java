@@ -7,13 +7,21 @@ import com.mongodb.client.ClientSession;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.model.CreateCollectionOptions;
+import com.mongodb.client.model.ValidationAction;
+import com.mongodb.client.model.ValidationLevel;
+import com.mongodb.client.model.ValidationOptions;
+import org.bson.Document;
 import org.bson.UuidRepresentation;
 import org.bson.codecs.configuration.CodecRegistries;
 import org.bson.codecs.configuration.CodecRegistry;
 import org.bson.codecs.pojo.Conventions;
 import org.bson.codecs.pojo.PojoCodecProvider;
+import org.example.codecs.CustomCodecProvider;
+import org.example.codecs.DurationCodec;
 import org.example.model.AbstractEntity;
 
+import java.util.Arrays;
 import java.util.List;
 
 public abstract class AbstractMongoRepository<T extends AbstractEntity> implements AutoCloseable {
@@ -35,6 +43,7 @@ public abstract class AbstractMongoRepository<T extends AbstractEntity> implemen
                 .applyConnectionString(connectionString)
                 .uuidRepresentation(UuidRepresentation.STANDARD)
                 .codecRegistry(CodecRegistries.fromRegistries(
+                        CodecRegistries.fromProviders(new CustomCodecProvider()),
                         CodecRegistries.fromProviders(PojoCodecProvider.builder().build()),
                         MongoClientSettings.getDefaultCodecRegistry(),
                         pojoCodecRegistry
@@ -62,9 +71,40 @@ public abstract class AbstractMongoRepository<T extends AbstractEntity> implemen
 
     public abstract long countAll();
 
+    public abstract void deleteAll();
+
+    public void dropDatabase() {
+        mongoDatabase.drop();
+    }
+
+    public static ValidationOptions foreignKeyValidator(String constraintName, String foreignCollectionName, String foreignField, String localField) {
+        // Build the $lookup stage
+        Document lookupStage = new Document("from", foreignCollectionName)
+            .append("localField", localField)
+            .append("foreignField", foreignField)
+            .append("as", constraintName);
+
+        // Build the validation expression
+        Document validator = new Document("$expr",
+            new Document("$gt", Arrays.asList(
+                new Document("$size",
+                    new Document("$ifNull", Arrays.asList(
+                        new Document("$lookup", lookupStage),
+                            List.of()  // empty array as fallback
+                    ))
+                ),
+                0
+            ))
+        );
+
+        return new com.mongodb.client.model.ValidationOptions()
+            .validator(validator)
+            .validationLevel(ValidationLevel.STRICT)
+            .validationAction(ValidationAction.ERROR);
+    }
+
     @Override
     public void close() {
-//        mongoDatabase.drop();
         mongoClient.close();
     }
 }

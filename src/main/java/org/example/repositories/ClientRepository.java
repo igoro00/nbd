@@ -1,6 +1,7 @@
 package org.example.repositories;
 
 import com.mongodb.client.MongoCollection;
+import org.bson.Document;
 import org.example.model.Client;
 
 import java.util.ArrayList;
@@ -22,13 +23,18 @@ public class ClientRepository extends AbstractMongoRepository<Client> {
 
     @Override
     public List<Client> findAll() {
-        ArrayList<Client> clients = new ArrayList<>();
-        collection.find().into(clients);
-        return clients;
+        ArrayList<Client> arr = new ArrayList<>();
+        collection.find().into(arr);
+        return arr;
     }
 
     @Override
     public long countAll() {
         return collection.countDocuments();
+    }
+
+    @Override
+    public void deleteAll() {
+        collection.deleteMany(new Document());
     }
 }

@@ -7,27 +7,32 @@ import org.example.model.Client;
 import java.util.Date;
 import java.util.List;
 
-public class ClientManager {
-    private final ClientRepository clientRepository;
+public class ClientManager implements AutoCloseable {
+    private final ClientRepository repository;
 
-    public ClientManager(ClientRepository repo) {
-        this.clientRepository = repo;
+    public ClientManager() {
+        this.repository = new ClientRepository();
     }
 
     public Client registerClient(String firstName, String lastName, String email, Date dateOfBirth, Address address) {
         Client newClient = new Client(firstName, lastName, email, dateOfBirth, address);
-        return clientRepository.add(newClient);
+        return repository.add(newClient);
     }
 
-//    public void unregisterClient(Client client) {
-//        client.archive();
-//    }
-//
     public List<Client> getAll(){
-        return clientRepository.findAll();
+        return repository.findAll();
     }
 
-    public long getClientCount() {
-        return clientRepository.countAll();
+    public void deleteAllClients() {
+        repository.deleteAll();
+    }
+
+    public ClientRepository getRepository() {
+        return repository;
+    }
+
+    @Override
+    public void close() throws Exception {
+        repository.close();
     }
 }

@@ -91,4 +91,21 @@ public class Movie extends AbstractEntity {
     public void setDirector(Director director) {
         this.director = director;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null) return false;
+        if (getClass() != o.getClass()) return false;
+
+        Movie movie = (Movie) o;
+
+        if (Double.compare(movie.basicPrice, basicPrice) != 0) return false;
+        if (!title.equals(movie.title)) return false;
+        if (!duration.equals(movie.duration)) return false;
+        if (!category.equals(movie.category)) return false;
+        if (!director.equals(movie.director)) return false;
+
+        return true;
+    }
 }

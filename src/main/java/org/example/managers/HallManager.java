@@ -1,32 +1,32 @@
 package org.example.managers;
 
 import org.example.model.Hall;
+import org.example.repositories.HallRepository;
 
 import java.util.List;
-import java.util.UUID;
 
-public class HallManager {
-    private final Repository<Hall> hallRepository;
+public class HallManager implements AutoCloseable {
+    private final HallRepository repository;
 
-    public HallManager(EntityManager em) {
-        this.em = em;
-        this.hallRepository = new Repository<Hall>(Hall.class, this.em);
+    public HallManager() {
+        this.repository = new HallRepository();
     }
 
-  public Hall createHall(String name, int seatsColumn, int seatsRow) {
+    public Hall createHall(String name, int seatsColumn, int seatsRow) {
         Hall newHall = new Hall(name, seatsColumn, seatsRow);
-        return hallRepository.add(newHall);
-    }
-
-    public Hall getHallById(UUID id) {
-        return hallRepository.findById(id);
+        return repository.add(newHall);
     }
 
     public List<Hall> getAll() {
-        return hallRepository.findAll();
+        return repository.findAll();
     }
 
-    public int getHallCount() {
-        return hallRepository.countAll();
+    public void deleteAllHalls() {
+        repository.deleteAll();
+    }
+
+    @Override
+    public void close() throws Exception {
+        repository.close();
     }
 }

@@ -1,34 +1,42 @@
 package org.example.managers;
 
-import jakarta.persistence.EntityManager;
-import org.example.repositories.Repository;
+import org.example.repositories.MovieRepository;
 import org.example.model.Movie;
 import org.example.model.Director;
 
 import java.time.Duration;
 import java.util.List;
 
-public class MovieManager {
-    private final Repository<Movie> movieRepository;
+public class MovieManager implements AutoCloseable {
+    private final MovieRepository repository;
 
-    public MovieManager(EntityManager em) {
-        this.movieRepository = new Repository<Movie>(Movie.class, em);
+    public MovieManager() {
+        this.repository = new MovieRepository();
     }
 
-    public Movie createMovie(String title, Duration timeDuration, String category, double basicPrice, Director director) {
+    public Movie createMovie(
+            String title,
+            Duration timeDuration,
+            String category,
+            double basicPrice,
+            String directorFirstName,
+            String directorLastName
+    ) {
+        Director director = new Director(directorFirstName, directorLastName);
         Movie newMovie = new Movie(title, timeDuration, category, basicPrice, director);
-        return movieRepository.add(newMovie);
-    }
-
-    public Movie getMovieByName(String name) {
-        throw new UnsupportedOperationException();
+        return repository.add(newMovie);
     }
 
     public List<Movie> getAll() {
-        return movieRepository.findAll();
+        return repository.findAll();
     }
 
-    public int getMovieCount() {
-        return movieRepository.countAll();
+    public void deleteAllMovies() {
+        repository.deleteAll();
+    }
+
+    @Override
+    public void close() throws Exception {
+        repository.close();
     }
 }

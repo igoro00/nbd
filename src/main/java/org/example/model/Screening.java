@@ -53,4 +53,19 @@ public class Screening extends AbstractEntity {
     public void setStartDate(Date startDate) {
         this.startDate = startDate;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null) return false;
+        if (getClass() != o.getClass()) return false;
+
+        Screening screening = (Screening) o;
+
+        if (!movie.equals(screening.movie)) return false;
+        if (!hall.equals(screening.hall)) return false;
+        if (!startDate.equals(screening.startDate)) return false;
+
+        return true;
+    }
 }

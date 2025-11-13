@@ -86,4 +86,21 @@ public class Client extends AbstractEntity {
     public void setFirstName(String firstName) {
         this.firstName = firstName;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null) return false;
+        if (getClass() != o.getClass()) return false;
+
+        Client client = (Client) o;
+
+        if (!firstName.equals(client.firstName)) return false;
+        if (!lastName.equals(client.lastName)) return false;
+        if (!email.equals(client.email)) return false;
+        if (!dateOfBirth.equals(client.dateOfBirth)) return false;
+        if (!address.equals(client.address)) return false;
+
+        return true;
+    }
 }
