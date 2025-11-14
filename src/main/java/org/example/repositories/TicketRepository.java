@@ -1,10 +1,15 @@
 package org.example.repositories;
 
+import com.mongodb.client.ClientSession;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.CreateCollectionOptions;
+import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.IndexOptions;
 import com.mongodb.client.model.Indexes;
 import org.bson.Document;
+import org.example.model.Client;
+import org.example.model.Hall;
+import org.example.model.Screening;
 import org.example.model.Ticket;
 
 import java.util.ArrayList;
@@ -15,16 +20,6 @@ public class TicketRepository extends AbstractMongoRepository<Ticket>{
 
     public TicketRepository() {
         super();
-        CreateCollectionOptions options = new CreateCollectionOptions()
-            .validationOptions(
-                AbstractMongoRepository.foreignKeyValidator(
-                    "ticket_client_fk",
-                    "clients",
-                    "_id",
-                    "client._id"
-                )
-        );
-        getMongoDatabase().createCollection("tickets", options);
         collection = getMongoDatabase().getCollection("tickets", Ticket.class);
 
         IndexOptions indexOptions = new IndexOptions().unique(true);
@@ -37,8 +32,31 @@ public class TicketRepository extends AbstractMongoRepository<Ticket>{
 
     @Override
     public Ticket add(Ticket entity) {
-        collection.insertOne(entity);
-        return entity;
+        ClientSession session = getClientSession();
+
+        try {
+            session.startTransaction();
+            MongoCollection<Screening> screeningCollection = getMongoDatabase().getCollection("screenings", Screening.class);
+            Screening screening = screeningCollection.find(session, Filters.eq("_id", entity.getScreening().getEntityId())).first();
+            if (screening == null) {
+                throw new IllegalArgumentException("Invalid screening id");
+            }
+
+            MongoCollection<Client> clientCollection = getMongoDatabase().getCollection("clients", Client.class);
+            Client client = clientCollection.find(session, Filters.eq("_id", entity.getClient().getEntityId())).first();
+            if (client == null) {
+                throw new IllegalArgumentException("Invalid client id");
+            }
+
+            collection.insertOne(session, entity);
+            session.commitTransaction();
+            return entity;
+        } catch (Exception e) {
+            session.abortTransaction();
+            throw e;
+        } finally {
+            session.close();
+        }
     }
 
     @Override

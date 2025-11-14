@@ -7,8 +7,6 @@ services:
     networks:
       - mongonet
     user: mongodb
-    ports:
-      - "27017:27017"
     volumes:
       - mongo-db-data-1:/data/db
       - mongo-configdb-data-1:/data/configdb
@@ -30,8 +28,6 @@ services:
     networks:
       - mongonet
     user: mongodb
-    ports:
-      - "27018:27018"
     volumes:
       - mongo-db-data-2:/data/db
       - mongo-configdb-data-2:/data/configdb
@@ -39,9 +35,9 @@ services:
       - MONGO_INITDB_ROOT_USERNAME=admin
       - MONGO_INITDB_ROOT_PASSWORD=adminpassword
       - MONGO_INITDB_DATABASE=absolute_cinema
-    command: mongod --config /etc/mongod.conf --port 27018
+    command: mongod --config /etc/mongod.conf --port 27017
     healthcheck:
-      test: [ "CMD", "mongosh", "--port", "27018" , "--eval", "db.adminCommand('ping')" ]
+      test: [ "CMD", "mongosh", "--port", "27017" , "--eval", "db.adminCommand('ping')" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -53,8 +49,6 @@ services:
     networks:
       - mongonet
     user: mongodb
-    ports:
-      - "27019:27019"
     volumes:
       - mongo-db-data-3:/data/db
       - mongo-configdb-data-3:/data/configdb
@@ -62,9 +56,9 @@ services:
       - MONGO_INITDB_ROOT_USERNAME=admin
       - MONGO_INITDB_ROOT_PASSWORD=adminpassword
       - MONGO_INITDB_DATABASE=absolute_cinema
-    command: mongod --config /etc/mongod.conf --port 27019
+    command: mongod --config /etc/mongod.conf --port 27017
     healthcheck:
-      test: [ "CMD", "mongosh", "--port", "27019" , "--eval", "db.adminCommand('ping')" ]
+      test: [ "CMD", "mongosh", "--port", "27017" , "--eval", "db.adminCommand('ping')" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -92,8 +86,8 @@ services:
           version: 1,
           members: [
             { _id: 0, host : "mongodb1:27017" },
-            { _id: 1, host : "mongodb2:27018" },
-            { _id: 2, host : "mongodb3:27019" }
+            { _id: 1, host : "mongodb2:27017" },
+            { _id: 2, host : "mongodb3:27017" }
           ]
         }
       );

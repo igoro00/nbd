@@ -241,7 +241,7 @@ class ExampleTest {
         Client client = clientManager.registerClient(
                 "Alice",
                 "Johnson",
-                "alice.johnson@example.com",
+                "alice.johnson@example2.com",
                 new GregorianCalendar(1990, Calendar.JANUARY, 5).getTime(),
                 new Address("New York", "10001", "5th Avenue", "1A")
         );
@@ -273,8 +273,8 @@ class ExampleTest {
             ticketManager.createTicket(screening, client, 0, hall.getColumns());
         });
 
-//        Assertions.assertThrows(IllegalArgumentException.class, () -> {
-//            ticketManager.createTicket(screening, client, 0, 0);
-//        });
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            ticketManager.createTicket(screening, client, 0, 0);
+        });
     }
 }

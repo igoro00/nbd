@@ -24,15 +24,7 @@ public class ScreeningManager implements AutoCloseable {
     }
 
     public Screening createScreening(Movie movie, Hall hall, Date screeningDate) {
-        List<Screening> collidingScreenings = repository.findByHallAndTime(hall, screeningDate, new Date(screeningDate.getTime() + movie.getDuration().toMillis()));
-        if(!collidingScreenings.isEmpty()){
-//            em.getTransaction().rollback();
-            throw new IllegalArgumentException("There is already a screening in this hall at the given time.");
-        }
-        Screening newScreening = new Screening(movie, hall, screeningDate);
-        newScreening =  repository.add(newScreening);
-//        em.getTransaction().commit();
-        return newScreening;
+        return repository.add(new Screening(movie, hall, screeningDate));
     }
 
     public void deleteAllScreenings() {

@@ -1,5 +1,6 @@
 package org.example.repositories;
 
+import com.mongodb.client.ClientSession;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.CreateCollectionOptions;
 import com.mongodb.client.model.Filters;
@@ -20,30 +21,47 @@ public class ScreeningRepository extends AbstractMongoRepository<Screening> {
     public ScreeningRepository() {
         super();
 
-        CreateCollectionOptions options = new CreateCollectionOptions()
-            .validationOptions(
-                AbstractMongoRepository.foreignKeyValidator(
-                    "fk_screening_movie",
-                    "movies",
-                    "_id",
-                    "movie._id"
-                )
-            ).validationOptions(
-                AbstractMongoRepository.foreignKeyValidator(
-                    "fk_screening_hall",
-                    "halls",
-                    "_id",
-                    "hall._id"
-                )
-            );
-        getMongoDatabase().createCollection("screenings", options);
         collection = getMongoDatabase().getCollection("screenings", Screening.class);
     }
 
     @Override
     public Screening add(Screening entity) {
-        collection.insertOne(entity);
-        return entity;
+        ClientSession session = getClientSession();
+
+        try {
+            session.startTransaction();
+            MongoCollection<Hall> hallCollection = getMongoDatabase().getCollection("halls", Hall.class);
+            Hall hall = hallCollection.find(session, Filters.eq("_id", entity.getHall().getEntityId())).first();
+            if (hall == null) {
+                throw new IllegalArgumentException("Invalid hall id");
+            }
+
+            MongoCollection<Movie> movieCollection = getMongoDatabase().getCollection("movies", Movie.class);
+            Movie movie = movieCollection.find(session, Filters.eq("_id", entity.getMovie().getEntityId())).first();
+            if (movie == null) {
+                throw new IllegalArgumentException("Invalid movie id");
+            }
+            Screening collidingScreening = collection.find(getCollingScreeningsFilter(
+                    entity.getHall(),
+                    entity.getStartDate(),
+                    new Date(
+                            entity.getStartDate().getTime() +
+                                    entity.getMovie().getDuration().toMillis()
+                    )
+            )).first();
+
+            if (collidingScreening != null) {
+                throw new IllegalArgumentException("There is already a screening in this hall at the given time.");
+            }
+            collection.insertOne(session, entity);
+            session.commitTransaction();
+            return entity;
+        } catch (Exception e) {
+            session.abortTransaction();
+            throw e;
+        } finally {
+            session.close();
+        }
     }
 
     @Override
@@ -58,8 +76,8 @@ public class ScreeningRepository extends AbstractMongoRepository<Screening> {
         return collection.countDocuments();
     }
 
-    public List<Screening> findByHallAndTime(Hall hall, Date startTime, Date endTime) {
-        Bson filter = Filters.and(
+    private Bson getCollingScreeningsFilter(Hall hall, Date startTime, Date endTime) {
+        return Filters.and(
             Filters.nor(
                 Filters.or(
                     Filters.expr(
@@ -73,9 +91,6 @@ public class ScreeningRepository extends AbstractMongoRepository<Screening> {
             ),
             Filters.eq("hall._id", hall.getEntityId())
         );
-        ArrayList<Screening> arr = new ArrayList<>();
-        collection.find(filter).into(arr);
-        return arr;
     }
 
     @Override
