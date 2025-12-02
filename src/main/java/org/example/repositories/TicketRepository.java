@@ -71,8 +71,4 @@ public class TicketRepository extends AbstractMongoRepository<Ticket>{
         return collection.countDocuments();
     }
 
-    @Override
-    public void deleteAll() {
-        collection.deleteMany(new Document());
-    }
 }

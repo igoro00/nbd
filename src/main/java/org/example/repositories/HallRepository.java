@@ -37,8 +37,4 @@ public class HallRepository extends AbstractMongoRepository<Hall>{
         return collection.countDocuments();
     }
 
-    @Override
-    public void deleteAll() {
-        collection.deleteMany(new Document());
-    }
 }

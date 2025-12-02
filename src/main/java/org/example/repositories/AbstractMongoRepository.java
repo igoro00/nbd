@@ -10,6 +10,7 @@ import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.ValidationAction;
 import com.mongodb.client.model.ValidationLevel;
 import com.mongodb.client.model.ValidationOptions;
+import lombok.Getter;
 import org.bson.Document;
 import org.bson.UuidRepresentation;
 import org.bson.codecs.configuration.CodecRegistries;
@@ -33,6 +34,7 @@ public abstract class AbstractMongoRepository<T extends AbstractEntity> implemen
                     .conventions(List.of(Conventions.ANNOTATION_CONVENTION))
                     .build());
     private MongoClient mongoClient;
+    @Getter
     private MongoDatabase mongoDatabase;
 
     private void initDbConnection() {
@@ -59,17 +61,11 @@ public abstract class AbstractMongoRepository<T extends AbstractEntity> implemen
         return mongoClient.startSession();
     }
 
-    public MongoDatabase getMongoDatabase() {
-        return mongoDatabase;
-    }
-
     public abstract T add(T entity);
 
     public abstract List<T> findAll();
 
     public abstract long countAll();
-
-    public abstract void deleteAll();
 
     public void dropDatabase() {
         mongoDatabase.drop();

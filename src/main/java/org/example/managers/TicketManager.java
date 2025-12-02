@@ -31,10 +31,6 @@ public class TicketManager implements AutoCloseable {
         return repository.countAll();
     }
 
-    public void deleteAllTickets() {
-        repository.deleteAll();
-    }
-
     @Override
     public void close() throws Exception {
         repository.close();

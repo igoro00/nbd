@@ -31,10 +31,6 @@ public class MovieManager implements AutoCloseable {
         return repository.findAll();
     }
 
-    public void deleteAllMovies() {
-        repository.deleteAll();
-    }
-
     @Override
     public void close() throws Exception {
         repository.close();

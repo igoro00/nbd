@@ -32,9 +32,4 @@ public class ClientRepository extends AbstractMongoRepository<Client> {
     public long countAll() {
         return collection.countDocuments();
     }
-
-    @Override
-    public void deleteAll() {
-        collection.deleteMany(new Document());
-    }
 }

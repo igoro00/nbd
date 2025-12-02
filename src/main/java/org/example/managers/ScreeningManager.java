@@ -27,10 +27,6 @@ public class ScreeningManager implements AutoCloseable {
         return repository.add(new Screening(movie, hall, screeningDate));
     }
 
-    public void deleteAllScreenings() {
-        repository.deleteAll();
-    }
-
     @Override
     public void close() throws Exception {
         repository.close();

@@ -21,10 +21,6 @@ public class HallManager implements AutoCloseable {
         return repository.findAll();
     }
 
-    public void deleteAllHalls() {
-        repository.deleteAll();
-    }
-
     @Override
     public void close() throws Exception {
         repository.close();

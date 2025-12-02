@@ -23,9 +23,6 @@ public class ClientManager implements AutoCloseable {
         return repository.findAll();
     }
 
-    public void deleteAllClients() {
-        repository.deleteAll();
-    }
 
     public ClientRepository getRepository() {
         return repository;

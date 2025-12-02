@@ -33,10 +33,5 @@ public class MovieRepository extends AbstractMongoRepository<Movie>{
     public long countAll() {
         return collection.countDocuments();
     }
-
-    @Override
-    public void deleteAll() {
-        collection.deleteMany(new Document());
-    }
 }
 

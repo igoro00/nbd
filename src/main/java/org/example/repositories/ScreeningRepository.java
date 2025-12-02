@@ -92,9 +92,4 @@ public class ScreeningRepository extends AbstractMongoRepository<Screening> {
             Filters.eq("hall._id", hall.getEntityId())
         );
     }
-
-    @Override
-    public void deleteAll() {
-        collection.deleteMany(new Document());
-    }
 }
