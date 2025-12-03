@@ -23,7 +23,7 @@ import org.example.model.AbstractEntity;
 import java.util.Arrays;
 import java.util.List;
 
-public abstract class AbstractMongoRepository<T extends AbstractEntity> implements AutoCloseable {
+public abstract class AbstractMongoRepository<T extends AbstractEntity> extends AbstractRepository<T> implements AutoCloseable {
     private final ConnectionString connectionString = new ConnectionString(
             "mongodb://mongodb1:27017,mongodb2:27017,mongodb3:27017/?replicaSet=replica_set_single");
     private final MongoCredential credential = MongoCredential.createCredential(
@@ -61,12 +61,6 @@ public abstract class AbstractMongoRepository<T extends AbstractEntity> implemen
         return mongoClient.startSession();
     }
 
-    public abstract T add(T entity);
-
-    public abstract List<T> findAll();
-
-    public abstract long countAll();
-
     public void dropDatabase() {
         mongoDatabase.drop();
     }
@@ -76,3 +70,4 @@ public abstract class AbstractMongoRepository<T extends AbstractEntity> implemen
         mongoClient.close();
     }
 }
+

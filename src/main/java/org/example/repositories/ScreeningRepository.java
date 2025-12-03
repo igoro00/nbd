@@ -6,6 +6,7 @@ import com.mongodb.client.model.CreateCollectionOptions;
 import com.mongodb.client.model.Filters;
 import org.bson.Document;
 import org.bson.conversions.Bson;
+import org.bson.types.ObjectId;
 import org.example.model.Hall;
 import org.example.model.Movie;
 import org.example.model.Screening;
@@ -69,6 +70,12 @@ public class ScreeningRepository extends AbstractMongoRepository<Screening> {
         ArrayList<Screening> screenings = new ArrayList<>();
         collection.find().into(screenings);
         return screenings;
+    }
+
+    @Override
+    public Screening findById(ObjectId id) {
+        Document query = new Document("_id", id);
+        return collection.find(query).first();
     }
 
     @Override

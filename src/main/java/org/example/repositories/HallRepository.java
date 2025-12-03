@@ -4,6 +4,8 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.IndexOptions;
 import com.mongodb.client.model.Indexes;
 import org.bson.Document;
+import org.bson.types.ObjectId;
+import org.example.model.Client;
 import org.example.model.Hall;
 
 import java.util.ArrayList;
@@ -30,6 +32,12 @@ public class HallRepository extends AbstractMongoRepository<Hall>{
         ArrayList<Hall> arr = new ArrayList<>();
         collection.find().into(arr);
         return arr;
+    }
+
+    @Override
+    public Hall findById(ObjectId id) {
+        Document query = new Document("_id", id);
+        return collection.find(query).first();
     }
 
     @Override

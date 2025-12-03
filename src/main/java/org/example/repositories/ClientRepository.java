@@ -2,6 +2,7 @@ package org.example.repositories;
 
 import com.mongodb.client.MongoCollection;
 import org.bson.Document;
+import org.bson.types.ObjectId;
 import org.example.model.Client;
 
 import java.util.ArrayList;
@@ -26,6 +27,12 @@ public class ClientRepository extends AbstractMongoRepository<Client> {
         ArrayList<Client> arr = new ArrayList<>();
         collection.find().into(arr);
         return arr;
+    }
+
+    @Override
+    public Client findById(ObjectId id) {
+        Document query = new Document("_id", id);
+        return collection.find(query).first();
     }
 
     @Override

@@ -7,6 +7,7 @@ import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.IndexOptions;
 import com.mongodb.client.model.Indexes;
 import org.bson.Document;
+import org.bson.types.ObjectId;
 import org.example.model.Client;
 import org.example.model.Hall;
 import org.example.model.Screening;
@@ -64,6 +65,12 @@ public class TicketRepository extends AbstractMongoRepository<Ticket>{
         ArrayList<Ticket> arr = new ArrayList<>();
         collection.find().into(arr);
         return arr;
+    }
+
+    @Override
+    public Ticket findById(ObjectId id) {
+        Document query = new Document("_id", id);
+        return collection.find(query).first();
     }
 
     @Override

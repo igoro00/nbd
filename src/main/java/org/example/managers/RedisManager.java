@@ -15,9 +15,10 @@ public class RedisManager {
     @Getter
     private final int clientTtlSeconds;
     @Getter
-    private final int facilityTtlSeconds;
+    private final int movieTtlSeconds;
     @Getter
-    private final int rentTtlSeconds;
+    private final int hallTtlSeconds;
+
 
     public RedisManager() {
         Properties props = loadProperties();
@@ -26,8 +27,8 @@ public class RedisManager {
         String password = props.getProperty("redis.password", "");
         int timeout = Integer.parseInt(props.getProperty("redis.timeout", "2000"));
         this.clientTtlSeconds = Integer.parseInt(props.getProperty("redis.client_ttl_seconds", "3600"));
-        this.facilityTtlSeconds = Integer.parseInt(props.getProperty("redis.facility_ttl_seconds", "7200"));
-        this.rentTtlSeconds = Integer.parseInt(props.getProperty("redis.rent_ttl_seconds", "1800"));
+        this.movieTtlSeconds = Integer.parseInt(props.getProperty("redis.movie_ttl_seconds", "3600"));
+        this.hallTtlSeconds = Integer.parseInt(props.getProperty("redis.hall_ttl_seconds", "3600"));
 
         JedisPoolConfig poolConfig = new JedisPoolConfig();
         poolConfig.setMaxTotal(50);
