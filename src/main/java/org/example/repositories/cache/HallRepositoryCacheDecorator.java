@@ -7,7 +7,8 @@ import org.example.repositories.AbstractRepository;
 import org.example.repositories.HallRepository;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.exceptions.JedisConnectionException;
-import redis.clients.jedis.json.DefaultGsonObjectMapper;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import java.util.Arrays;
 import java.util.List;
@@ -17,12 +18,14 @@ public class HallRepositoryCacheDecorator extends AbstractRepository<Hall> {
 	private final HallRepository delegate;
 	private final RedisManager redisManager;
 	private final int ttlSeconds;
-	private final DefaultGsonObjectMapper mapper = new DefaultGsonObjectMapper();
+	    private final Gson gson = new GsonBuilder()
+		    .registerTypeAdapter(java.time.Duration.class, new DurationAdapter())
+		    .create();
 
 	public HallRepositoryCacheDecorator(HallRepository delegate, RedisManager redisManager) {
 		this.delegate = delegate;
 		this.redisManager = redisManager;
-		this.ttlSeconds = redisManager.getHallTtlSeconds(); // Dodaj tę metodę w RedisManager lub ustaw na sztywno
+		this.ttlSeconds = redisManager.getHallTtlSeconds();
 	}
 
 	private String keyAll() {
@@ -50,7 +53,7 @@ public class HallRepositoryCacheDecorator extends AbstractRepository<Hall> {
 		try (Jedis jedis = redisManager.getResource()) {
 			String json = jedis.get(key);
 			if (json != null) {
-				Hall[] arr = mapper.fromJson(json, Hall[].class);
+				Hall[] arr = gson.fromJson(json, Hall[].class);
 				return Arrays.asList(arr);
 			}
 		} catch (JedisConnectionException e) {
@@ -59,7 +62,7 @@ public class HallRepositoryCacheDecorator extends AbstractRepository<Hall> {
 
 		List<Hall> all = delegate.findAll();
 		try (Jedis jedis = redisManager.getResource()) {
-			jedis.setex(key, ttlSeconds, mapper.toJson(all));
+			jedis.setex(key, ttlSeconds, gson.toJson(all));
 		} catch (JedisConnectionException e) {
 		}
 		return all;
@@ -71,7 +74,7 @@ public class HallRepositoryCacheDecorator extends AbstractRepository<Hall> {
 		try (Jedis jedis = redisManager.getResource()) {
 			String json = jedis.get(key);
 			if (json != null) {
-				return mapper.fromJson(json, Hall.class);
+				return gson.fromJson(json, Hall.class);
 			}
 		} catch (JedisConnectionException e) {
 			return delegate.findById(id);
@@ -80,7 +83,7 @@ public class HallRepositoryCacheDecorator extends AbstractRepository<Hall> {
 		Hall hall = delegate.findById(id);
 		if (hall != null) {
 			try (Jedis jedis = redisManager.getResource()) {
-				jedis.setex(key, ttlSeconds, mapper.toJson(hall));
+				jedis.setex(key, ttlSeconds, gson.toJson(hall));
 			} catch (JedisConnectionException e) {
 			}
 		}

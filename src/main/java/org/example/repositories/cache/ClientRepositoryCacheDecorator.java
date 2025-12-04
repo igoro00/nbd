@@ -7,7 +7,8 @@ import org.example.repositories.AbstractRepository;
 import org.example.repositories.ClientRepository;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.exceptions.JedisConnectionException;
-import redis.clients.jedis.json.DefaultGsonObjectMapper;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import java.util.Arrays;
 import java.util.List;
@@ -17,7 +18,9 @@ public class ClientRepositoryCacheDecorator extends AbstractRepository<Client> {
     private final ClientRepository delegate;
     private final RedisManager redisManager;
     private final int ttlSeconds;
-    private final DefaultGsonObjectMapper mapper = new DefaultGsonObjectMapper();
+        private final Gson gson = new GsonBuilder()
+            .registerTypeAdapter(java.time.Duration.class, new DurationAdapter())
+            .create();
 
     public ClientRepositoryCacheDecorator(ClientRepository delegate, RedisManager redisManager) {
         this.delegate = delegate;
@@ -48,7 +51,7 @@ public class ClientRepositoryCacheDecorator extends AbstractRepository<Client> {
         try (Jedis jedis = redisManager.getResource()) {
             String json = jedis.get(key);
             if (json != null) {
-                Client[] arr = mapper.fromJson(json, Client[].class);
+                Client[] arr = gson.fromJson(json, Client[].class);
                 return Arrays.asList(arr);
             }
         } catch (JedisConnectionException e) {
@@ -57,7 +60,7 @@ public class ClientRepositoryCacheDecorator extends AbstractRepository<Client> {
 
         List<Client> all = delegate.findAll();
         try (Jedis jedis = redisManager.getResource()) {
-            jedis.setex(key, ttlSeconds, mapper.toJson(all));
+            jedis.setex(key, ttlSeconds, gson.toJson(all));
         } catch (JedisConnectionException e) {
         }
         return all;
@@ -69,7 +72,7 @@ public class ClientRepositoryCacheDecorator extends AbstractRepository<Client> {
         try (Jedis jedis = redisManager.getResource()) {
             String json = jedis.get(key);
             if (json != null) {
-                return mapper.fromJson(json, Client.class);
+                return gson.fromJson(json, Client.class);
             }
         } catch (JedisConnectionException e) {
             return delegate.findById(id);
@@ -78,7 +81,7 @@ public class ClientRepositoryCacheDecorator extends AbstractRepository<Client> {
         Client client = delegate.findById(id);
         if (client != null) {
             try (Jedis jedis = redisManager.getResource()) {
-                jedis.setex(key, ttlSeconds, mapper.toJson(client));
+                jedis.setex(key, ttlSeconds, gson.toJson(client));
             } catch (JedisConnectionException e) {
             }
         }

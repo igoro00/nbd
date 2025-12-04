@@ -7,7 +7,8 @@ import org.example.repositories.AbstractRepository;
 import org.example.repositories.MovieRepository;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.exceptions.JedisConnectionException;
-import redis.clients.jedis.json.DefaultGsonObjectMapper;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import java.util.Arrays;
 import java.util.List;
@@ -17,7 +18,9 @@ public class MovieRepositoryCacheDecorator extends AbstractRepository<Movie> {
 	private final MovieRepository delegate;
 	private final RedisManager redisManager;
 	private final int ttlSeconds;
-	private final DefaultGsonObjectMapper mapper = new DefaultGsonObjectMapper();
+	    private final Gson gson = new GsonBuilder()
+		    .registerTypeAdapter(java.time.Duration.class, new DurationAdapter())
+		    .create();
 
 	public MovieRepositoryCacheDecorator(MovieRepository delegate, RedisManager redisManager) {
 		this.delegate = delegate;
@@ -50,7 +53,7 @@ public class MovieRepositoryCacheDecorator extends AbstractRepository<Movie> {
 		try (Jedis jedis = redisManager.getResource()) {
 			String json = jedis.get(key);
 			if (json != null) {
-				Movie[] arr = mapper.fromJson(json, Movie[].class);
+				Movie[] arr = gson.fromJson(json, Movie[].class);
 				return Arrays.asList(arr);
 			}
 		} catch (JedisConnectionException e) {
@@ -59,7 +62,7 @@ public class MovieRepositoryCacheDecorator extends AbstractRepository<Movie> {
 
 		List<Movie> all = delegate.findAll();
 		try (Jedis jedis = redisManager.getResource()) {
-			jedis.setex(key, ttlSeconds, mapper.toJson(all));
+			jedis.setex(key, ttlSeconds, gson.toJson(all));
 		} catch (JedisConnectionException e) {
 		}
 		return all;
@@ -71,7 +74,7 @@ public class MovieRepositoryCacheDecorator extends AbstractRepository<Movie> {
 		try (Jedis jedis = redisManager.getResource()) {
 			String json = jedis.get(key);
 			if (json != null) {
-				return mapper.fromJson(json, Movie.class);
+				return gson.fromJson(json, Movie.class);
 			}
 		} catch (JedisConnectionException e) {
 			return delegate.findById(id);
@@ -80,7 +83,7 @@ public class MovieRepositoryCacheDecorator extends AbstractRepository<Movie> {
 		Movie movie = delegate.findById(id);
 		if (movie != null) {
 			try (Jedis jedis = redisManager.getResource()) {
-				jedis.setex(key, ttlSeconds, mapper.toJson(movie));
+				jedis.setex(key, ttlSeconds, gson.toJson(movie));
 			} catch (JedisConnectionException e) {
 			}
 		}
