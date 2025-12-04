@@ -6,6 +6,8 @@ services:
     hostname: mongodb1
     networks:
       - mongonet
+    ports:
+      - "27017:27017"
     user: mongodb
     volumes:
       - mongo-db-data-1:/data/db
@@ -27,6 +29,8 @@ services:
     hostname: mongodb2
     networks:
       - mongonet
+    ports:
+      - "27018:27017"
     user: mongodb
     volumes:
       - mongo-db-data-2:/data/db
@@ -48,6 +52,8 @@ services:
     hostname: mongodb3
     networks:
       - mongonet
+    ports:
+      - "27019:27017"
     user: mongodb
     volumes:
       - mongo-db-data-3:/data/db
