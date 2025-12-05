@@ -11,8 +11,8 @@ import java.util.List;
 public class ScreeningManager implements AutoCloseable {
     private final ScreeningRepository repository;
 
-    public ScreeningManager() {
-        this.repository = new ScreeningRepository();
+    public ScreeningManager(ScreeningRepository repository) {
+        this.repository = repository;
     }
 
     public long getScreeningCount() {

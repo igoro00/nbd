@@ -20,8 +20,6 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
-
 public class CacheTest {
 
     private MovieRepository movieRepository;
@@ -35,7 +33,7 @@ public class CacheTest {
     private ClientManager clientManager;
     private HallManager hallManager;
 
-    @BeforeAll
+    @BeforeEach
     void setUp() throws Exception {
         movieRepository = new MovieRepository();
         clientRepository = new ClientRepository();
@@ -44,16 +42,16 @@ public class CacheTest {
         movieCacheDecorator = new MovieRepositoryCacheDecorator(movieRepository, redisManager);
         clientCacheDecorator = new ClientRepositoryCacheDecorator(clientRepository, redisManager);
         hallCacheDecorator = new HallRepositoryCacheDecorator(hallRepository, redisManager);
-        movieManager = new MovieManager();
-        clientManager = new ClientManager();
-        hallManager = new HallManager();
+        movieManager = new MovieManager(movieRepository);
+        clientManager = new ClientManager(clientRepository);
+        hallManager = new HallManager(hallRepository);
         clientRepository.dropDatabase();
         try (Jedis jedis = redisManager.getResource()) {
             jedis.flushDB();
         }
     }
 
-    @AfterAll
+    @AfterEach
     void tearDown() throws Exception {
         clientRepository.close();
         movieRepository.close();

@@ -2,6 +2,7 @@ import org.example.managers.*;
 import org.example.model.*;
 import org.example.model.Client;
 import org.example.model.Director;
+import org.example.repositories.*;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
@@ -19,19 +20,29 @@ class ExampleTest {
     private HallManager hallManager;
     private TicketManager ticketManager;
     private ScreeningManager screeningManager;
+    private ClientRepository clientRepository;
+    private HallRepository hallRepository;
+    private MovieRepository movieRepository;
+    private ScreeningRepository screeningRepository;
+    private TicketRepository ticketRepository;
 
     @BeforeEach
     public void setUp() throws Exception {
         // Drop database using random manager
-        this.clientManager = new ClientManager();
+        clientRepository = new ClientRepository();
+        this.clientManager = new ClientManager(clientRepository);
         this.clientManager.getRepository().dropDatabase();
         this.clientManager.close();
-
-        this.clientManager = new ClientManager();
-        this.movieManager = new MovieManager();
-        this.screeningManager = new ScreeningManager();
-        this.hallManager = new HallManager();
-        this.ticketManager = new TicketManager();
+        clientRepository = new ClientRepository();
+        hallRepository = new HallRepository();
+        movieRepository = new MovieRepository();
+        screeningRepository = new ScreeningRepository();
+        ticketRepository = new TicketRepository();
+        this.clientManager = new ClientManager(clientRepository);
+        this.movieManager = new MovieManager(movieRepository);
+        this.screeningManager = new ScreeningManager(screeningRepository);
+        this.hallManager = new HallManager(hallRepository);
+        this.ticketManager = new TicketManager(ticketRepository);
     }
 
     @AfterEach

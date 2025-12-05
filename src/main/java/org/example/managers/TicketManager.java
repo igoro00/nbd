@@ -11,8 +11,8 @@ import java.util.List;
 public class TicketManager implements AutoCloseable {
     private final TicketRepository repository;
 
-    public TicketManager() {
-        this.repository = new TicketRepository();
+    public TicketManager(TicketRepository repository) {
+        this.repository = repository;
     }
 
     public Ticket createTicket(Screening screening, Client client, int seatRow, int seatColumn) {

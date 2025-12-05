@@ -10,8 +10,8 @@ import java.util.List;
 public class MovieManager implements AutoCloseable {
     private final MovieRepository repository;
 
-    public MovieManager() {
-        this.repository = new MovieRepository();
+    public MovieManager(MovieRepository repository) {
+        this.repository = repository;
     }
 
     public Movie createMovie(

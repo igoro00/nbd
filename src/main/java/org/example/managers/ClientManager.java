@@ -1,5 +1,6 @@
 package org.example.managers;
 
+import lombok.Getter;
 import org.example.repositories.ClientRepository;
 import org.example.model.Address;
 import org.example.model.Client;
@@ -7,13 +8,13 @@ import org.example.model.Client;
 import java.util.Date;
 import java.util.List;
 
+@Getter
 public class ClientManager implements AutoCloseable {
     private final ClientRepository repository;
 
-    public ClientManager() {
-        this.repository = new ClientRepository();
+    public ClientManager(ClientRepository repository) {
+        this.repository = repository;
     }
-
     public Client registerClient(String firstName, String lastName, String email, Date dateOfBirth, Address address) {
         Client newClient = new Client(firstName, lastName, email, dateOfBirth, address);
         return repository.add(newClient);
@@ -23,10 +24,6 @@ public class ClientManager implements AutoCloseable {
         return repository.findAll();
     }
 
-
-    public ClientRepository getRepository() {
-        return repository;
-    }
 
     @Override
     public void close() throws Exception {

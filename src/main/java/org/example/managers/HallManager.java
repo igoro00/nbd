@@ -8,8 +8,8 @@ import java.util.List;
 public class HallManager implements AutoCloseable {
     private final HallRepository repository;
 
-    public HallManager() {
-        this.repository = new HallRepository();
+    public HallManager(HallRepository repository) {
+        this.repository = repository;
     }
 
     public Hall createHall(String name, int seatsColumn, int seatsRow) {
