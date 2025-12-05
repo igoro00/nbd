@@ -21,6 +21,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+
 public class CacheTest {
 
     private MovieRepository movieRepository;
@@ -30,6 +31,9 @@ public class CacheTest {
     private MovieRepositoryCacheDecorator movieCacheDecorator;
     private ClientRepositoryCacheDecorator clientCacheDecorator;
     private HallRepositoryCacheDecorator hallCacheDecorator;
+    private MovieManager movieManager;
+    private ClientManager clientManager;
+    private HallManager hallManager;
 
     @BeforeAll
     void setUp() throws Exception {
@@ -40,14 +44,12 @@ public class CacheTest {
         movieCacheDecorator = new MovieRepositoryCacheDecorator(movieRepository, redisManager);
         clientCacheDecorator = new ClientRepositoryCacheDecorator(clientRepository, redisManager);
         hallCacheDecorator = new HallRepositoryCacheDecorator(hallRepository, redisManager);
+        movieManager = new MovieManager();
+        clientManager = new ClientManager();
+        hallManager = new HallManager();
         clientRepository.dropDatabase();
         try (Jedis jedis = redisManager.getResource()) {
-            jedis.del("movies:all");
-            jedis.del("movies:count");
-            jedis.del("clients:all");
-            jedis.del("clients:count");
-            jedis.del("halls:all");
-            jedis.del("halls:count");
+            jedis.flushDB();
         }
     }
 
@@ -61,7 +63,6 @@ public class CacheTest {
     @Test
     void addMovieAndCheckCache() {
         Duration duration = Duration.ofMinutes(120);
-        MovieManager movieManager = new MovieManager();
         movieManager.createMovie(
                 "Inception",
                 duration,
@@ -78,21 +79,20 @@ public class CacheTest {
         assertTrue(movies2.stream().anyMatch(m -> "Inception".equals(m.getTitle())));
     }
 
-    @Test
-    void addClientAndCheckCache() {
+        @Test
+        void addClientAndCheckCache() {
         Address address = new Address(
-                "Łódź",
-                "90-105",
-                "Piotrkowska",
-                "69/8"
+            "Łódź",
+            "90-105",
+            "Piotrkowska",
+            "69/8"
         );
-        ClientManager clientManager = new ClientManager();
         clientManager.registerClient(
-                "Martin",
-                "Smith",
-                "martin.smith@example.com",
-                new java.util.GregorianCalendar(1978, java.util.Calendar.SEPTEMBER, 29).getTime(),
-                address
+            "Martin",
+            "Smith",
+            "martin.smith@example.com",
+            new java.util.GregorianCalendar(1978, java.util.Calendar.SEPTEMBER, 29).getTime(),
+            address
         );
         List<Client> clients1 = clientCacheDecorator.findAll();
         assertFalse(clients1.isEmpty());
@@ -100,11 +100,10 @@ public class CacheTest {
         List<Client> clients2 = clientCacheDecorator.findAll();
         assertEquals(clients1.size(), clients2.size());
         assertTrue(clients2.stream().anyMatch(c -> "Martin".equals(c.getFirstName()) && "Smith".equals(c.getLastName())));
-    }
+        }
 
     @Test
     void addHallAndCheckCache() {
-        HallManager hallManager = new HallManager();
         hallManager.createHall("Main Hall", 20, 15);
         List<Hall> halls1 = hallCacheDecorator.findAll();
         assertFalse(halls1.isEmpty());
