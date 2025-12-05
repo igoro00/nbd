@@ -1,6 +1,8 @@
 package org.example.managers;
 
 import lombok.Getter;
+import org.example.model.Hall;
+import org.example.repositories.AbstractRepository;
 import org.example.repositories.ClientRepository;
 import org.example.model.Address;
 import org.example.model.Client;
@@ -10,9 +12,9 @@ import java.util.List;
 
 @Getter
 public class ClientManager implements AutoCloseable {
-    private final ClientRepository repository;
+    private final AbstractRepository<Client> repository;
 
-    public ClientManager(ClientRepository repository) {
+    public ClientManager(AbstractRepository<Client> repository) {
         this.repository = repository;
     }
     public Client registerClient(String firstName, String lastName, String email, Date dateOfBirth, Address address) {

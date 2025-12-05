@@ -3,6 +3,7 @@ package org.example.repositories.cache;
 import org.bson.types.ObjectId;
 import org.example.managers.RedisManager;
 import org.example.model.Client;
+import org.example.model.Hall;
 import org.example.repositories.AbstractRepository;
 import org.example.repositories.ClientRepository;
 import redis.clients.jedis.Jedis;
@@ -34,41 +35,53 @@ public class ClientRepositoryCacheDecorator extends AbstractRepository<Client> {
     private String keyCount() {
         return "clients:count";
     }
+    private String keyId(ObjectId id){return "clients:" + id;}
 
-    public Client add(Client client) {
-        delegate.add(client);
+    public void invalidateCache(ObjectId id) {
+        try (Jedis jedis = redisManager.getResource()) {
+            jedis.del(keyId(id));
+        } catch (JedisConnectionException ignored) {}
+    }
+
+    public void invalidateAll() {
         try (Jedis jedis = redisManager.getResource()) {
             jedis.del(keyAll());
             jedis.del(keyCount());
-        } catch (JedisConnectionException e) {
-        }
+        } catch (JedisConnectionException ignored) {}
+    }
+
+    public Client add(Client client) {
+        delegate.add(client);
+        invalidateAll();
         invalidateCache(client.getEntityId());
         return client;
     }
 
     public List<Client> findAll() {
         String key = keyAll();
+
         try (Jedis jedis = redisManager.getResource()) {
             String json = jedis.get(key);
             if (json != null) {
-                Client[] arr = gson.fromJson(json, Client[].class);
-                return Arrays.asList(arr);
+                return Arrays.asList(gson.fromJson(json, Client[].class));
             }
         } catch (JedisConnectionException e) {
             return delegate.findAll();
         }
 
         List<Client> all = delegate.findAll();
+
         try (Jedis jedis = redisManager.getResource()) {
             jedis.setex(key, ttlSeconds, gson.toJson(all));
-        } catch (JedisConnectionException e) {
-        }
+        } catch (JedisConnectionException ignored) {}
+
         return all;
     }
 
     @Override
     public Client findById(ObjectId id) {
-        String key = "clients:" + id;
+        String key = keyId(id);
+
         try (Jedis jedis = redisManager.getResource()) {
             String json = jedis.get(key);
             if (json != null) {
@@ -79,18 +92,20 @@ public class ClientRepositoryCacheDecorator extends AbstractRepository<Client> {
         }
 
         Client client = delegate.findById(id);
+
         if (client != null) {
             try (Jedis jedis = redisManager.getResource()) {
                 jedis.setex(key, ttlSeconds, gson.toJson(client));
-            } catch (JedisConnectionException e) {
-            }
+            } catch (JedisConnectionException ignored) {}
         }
+
         return client;
     }
 
     @Override
     public long countAll() {
         String key = keyCount();
+
         try (Jedis jedis = redisManager.getResource()) {
             String cached = jedis.get(key);
             if (cached != null) {
@@ -108,14 +123,6 @@ public class ClientRepositoryCacheDecorator extends AbstractRepository<Client> {
         } catch (JedisConnectionException e) {
         }
         return count;
-    }
-
-    public void invalidateCache(ObjectId id) {
-        String key = "clients:" + id;
-        try (Jedis jedis = redisManager.getResource()) {
-            jedis.del(key);
-        } catch (JedisConnectionException e) {
-        }
     }
 
 }

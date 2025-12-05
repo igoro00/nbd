@@ -1,5 +1,6 @@
 package org.example.managers;
 
+import org.example.repositories.AbstractRepository;
 import org.example.repositories.MovieRepository;
 import org.example.model.Movie;
 import org.example.model.Director;
@@ -8,9 +9,9 @@ import java.time.Duration;
 import java.util.List;
 
 public class MovieManager implements AutoCloseable {
-    private final MovieRepository repository;
+    private final AbstractRepository<Movie> repository;
 
-    public MovieManager(MovieRepository repository) {
+    public MovieManager(AbstractRepository<Movie> repository) {
         this.repository = repository;
     }
 

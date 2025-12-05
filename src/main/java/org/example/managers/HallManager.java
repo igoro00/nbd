@@ -1,14 +1,15 @@
 package org.example.managers;
 
 import org.example.model.Hall;
+import org.example.repositories.AbstractRepository;
 import org.example.repositories.HallRepository;
 
 import java.util.List;
 
 public class HallManager implements AutoCloseable {
-    private final HallRepository repository;
+    private final AbstractRepository<Hall> repository;
 
-    public HallManager(HallRepository repository) {
+    public HallManager(AbstractRepository<Hall> repository) {
         this.repository = repository;
     }
 

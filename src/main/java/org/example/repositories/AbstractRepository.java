@@ -22,4 +22,7 @@ public abstract class AbstractRepository <T extends AbstractEntity> implements A
     public void close() throws Exception {
 
     }
+
+    public void dropDatabase() {
+    }
 }

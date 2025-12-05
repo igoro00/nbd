@@ -26,26 +26,35 @@ public class CacheTest {
     private ClientRepository clientRepository;
     private HallRepository hallRepository;
     private RedisManager redisManager;
+
     private MovieRepositoryCacheDecorator movieCacheDecorator;
     private ClientRepositoryCacheDecorator clientCacheDecorator;
     private HallRepositoryCacheDecorator hallCacheDecorator;
+
     private MovieManager movieManager;
     private ClientManager clientManager;
     private HallManager hallManager;
 
     @BeforeEach
     void setUp() throws Exception {
+        redisManager = new RedisManager();
+
         movieRepository = new MovieRepository();
         clientRepository = new ClientRepository();
         hallRepository = new HallRepository();
-        redisManager = new RedisManager();
+
         movieCacheDecorator = new MovieRepositoryCacheDecorator(movieRepository, redisManager);
         clientCacheDecorator = new ClientRepositoryCacheDecorator(clientRepository, redisManager);
         hallCacheDecorator = new HallRepositoryCacheDecorator(hallRepository, redisManager);
-        movieManager = new MovieManager(movieRepository);
-        clientManager = new ClientManager(clientRepository);
-        hallManager = new HallManager(hallRepository);
+
+        movieManager = new MovieManager(movieCacheDecorator);
+        clientManager = new ClientManager(clientCacheDecorator);
+        hallManager = new HallManager(hallCacheDecorator);
+
+        movieRepository.dropDatabase();
         clientRepository.dropDatabase();
+        hallRepository.dropDatabase();
+
         try (Jedis jedis = redisManager.getResource()) {
             jedis.flushDB();
         }
@@ -53,8 +62,8 @@ public class CacheTest {
 
     @AfterEach
     void tearDown() throws Exception {
-        clientRepository.close();
         movieRepository.close();
+        clientRepository.close();
         hallRepository.close();
     }
 
@@ -77,37 +86,76 @@ public class CacheTest {
         assertTrue(movies2.stream().anyMatch(m -> "Inception".equals(m.getTitle())));
     }
 
-        @Test
-        void addClientAndCheckCache() {
-        Address address = new Address(
-            "Łódź",
-            "90-105",
-            "Piotrkowska",
-            "69/8"
-        );
-        clientManager.registerClient(
-            "Martin",
-            "Smith",
-            "martin.smith@example.com",
+    @Test
+    void invalidateAllOnAdd() {
+        movieManager.createMovie("Inception", Duration.ofMinutes(100), "Sci-Fi", 10.0, "Steven", "Spielberg");
+        List<Movie> firstLoad = movieCacheDecorator.findAll();
+        movieManager.createMovie("Inception", Duration.ofMinutes(120), "Sci-Fi", 10.0, "Steven", "Spielberg");
+        List<Movie> secondLoad = movieCacheDecorator.findAll();
+        assertEquals(1, firstLoad.size(), "Cache listy nie został unieważniony!");
+        assertEquals(2, secondLoad.size(), "Cache listy nie został unieważniony!");
+    }
+
+    @Test
+    void invalidateCountOnAdd() {
+        movieManager.createMovie("Inception", Duration.ofMinutes(100), "Sci-Fi", 10.0, "Steven", "Spielberg");
+        long count1 = movieCacheDecorator.countAll();
+        movieManager.createMovie("Inception", Duration.ofMinutes(120), "Sci-Fi", 10.0, "Steven", "Spielberg");
+        long count2 = movieCacheDecorator.countAll();
+        assertEquals(count1 + 1, count2, "Cache count nie został unieważniony!");
+    }
+
+@Test
+void addClientAndCheckCache() {
+    Address address = new Address("Łódź", "90-105", "Piotrkowska", "69/8");
+    clientManager.registerClient("Martin", "Smith", "martin.smith@example.com",
             new java.util.GregorianCalendar(1978, java.util.Calendar.SEPTEMBER, 29).getTime(),
-            address
-        );
-        List<Client> clients1 = clientCacheDecorator.findAll();
-        assertFalse(clients1.isEmpty());
-        assertTrue(clients1.stream().anyMatch(c -> "Martin".equals(c.getFirstName()) && "Smith".equals(c.getLastName())));
-        List<Client> clients2 = clientCacheDecorator.findAll();
-        assertEquals(clients1.size(), clients2.size());
-        assertTrue(clients2.stream().anyMatch(c -> "Martin".equals(c.getFirstName()) && "Smith".equals(c.getLastName())));
-        }
+            address);
+
+    List<Client> clients1 = clientCacheDecorator.findAll();
+    assertFalse(clients1.isEmpty());
+    assertTrue(clients1.stream().anyMatch(c -> "Martin".equals(c.getFirstName()) && "Smith".equals(c.getLastName())));
+
+    List<Client> clients2 = clientCacheDecorator.findAll();
+    assertEquals(clients1.size(), clients2.size());
+    assertTrue(clients2.stream().anyMatch(c -> "Martin".equals(c.getFirstName()) && "Smith".equals(c.getLastName())));
+}
+
+    @Test
+    void clientCacheInvalidationOnAdd() {
+        Address address = new Address("Warsaw", "00-001", "Marszałkowska", "1");
+        clientManager.registerClient("Alice", "Johnson", "alice@example.com",
+                new java.util.GregorianCalendar(1990, java.util.Calendar.JANUARY, 5).getTime(),
+                address);
+
+        long countBefore = clientCacheDecorator.countAll();
+        clientManager.registerClient("Bob", "Brown", "bob@example.com",
+                new java.util.GregorianCalendar(1985, java.util.Calendar.JUNE, 10).getTime(),
+                new Address("Krakow", "30-001", "Floriańska", "2"));
+
+        long countAfter = clientCacheDecorator.countAll();
+
+        assertEquals(countBefore + 1, countAfter);
+    }
 
     @Test
     void addHallAndCheckCache() {
         hallManager.createHall("Main Hall", 20, 15);
+
         List<Hall> halls1 = hallCacheDecorator.findAll();
         assertFalse(halls1.isEmpty());
         assertTrue(halls1.stream().anyMatch(h -> "Main Hall".equals(h.getName())));
+
         List<Hall> halls2 = hallCacheDecorator.findAll();
         assertEquals(halls1.size(), halls2.size());
         assertTrue(halls2.stream().anyMatch(h -> "Main Hall".equals(h.getName())));
+    }
+
+    @Test
+    void hallCacheInvalidationOnAdd() {
+        long countBefore = hallCacheDecorator.countAll();
+        hallManager.createHall("VIP Hall", 10, 10);
+        long countAfter = hallCacheDecorator.countAll();
+        assertEquals(countBefore + 1, countAfter);
     }
 }

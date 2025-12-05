@@ -18,9 +18,10 @@ public class MovieRepositoryCacheDecorator extends AbstractRepository<Movie> {
 	private final MovieRepository delegate;
 	private final RedisManager redisManager;
 	private final int ttlSeconds;
-	    private final Gson gson = new GsonBuilder()
-		    .registerTypeAdapter(java.time.Duration.class, new DurationAdapter())
-		    .create();
+
+	private final Gson gson = new GsonBuilder()
+			.registerTypeAdapter(java.time.Duration.class, new DurationAdapter())
+			.create();
 
 	public MovieRepositoryCacheDecorator(MovieRepository delegate, RedisManager redisManager) {
 		this.delegate = delegate;
@@ -28,28 +29,37 @@ public class MovieRepositoryCacheDecorator extends AbstractRepository<Movie> {
 		this.ttlSeconds = redisManager.getMovieTtlSeconds();
 	}
 
-	private String keyAll() {
-		return "movies:all";
-	}
+	private String keyAll() { return "movies:all"; }
+	private String keyCount() { return "movies:count"; }
+	private String keyById(ObjectId id) { return "movies:" + id; }
 
-	private String keyCount() {
-		return "movies:count";
-	}
-
-	public Movie add(Movie movie) {
-		delegate.add(movie);
+	private void invalidateAll() {
 		try (Jedis jedis = redisManager.getResource()) {
 			jedis.del(keyAll());
 			jedis.del(keyCount());
-		} catch (JedisConnectionException e) {
 		}
-		invalidateCache(movie.getEntityId());
+	}
+
+	private void invalidateOne(ObjectId id) {
+		try (Jedis jedis = redisManager.getResource()) {
+			jedis.del(keyById(id));
+		}
+	}
+
+	@Override
+	public Movie add(Movie movie) {
+		delegate.add(movie);
+
+		invalidateAll();
+		invalidateOne(movie.getEntityId());
+
 		return movie;
 	}
 
 	@Override
 	public List<Movie> findAll() {
 		String key = keyAll();
+
 		try (Jedis jedis = redisManager.getResource()) {
 			String json = jedis.get(key);
 			if (json != null) {
@@ -60,17 +70,19 @@ public class MovieRepositoryCacheDecorator extends AbstractRepository<Movie> {
 			return delegate.findAll();
 		}
 
-		List<Movie> all = delegate.findAll();
+		List<Movie> list = delegate.findAll();
+
 		try (Jedis jedis = redisManager.getResource()) {
-			jedis.setex(key, ttlSeconds, gson.toJson(all));
-		} catch (JedisConnectionException e) {
+			jedis.setex(key, ttlSeconds, gson.toJson(list));
 		}
-		return all;
+
+		return list;
 	}
 
 	@Override
 	public Movie findById(ObjectId id) {
-		String key = "movies:" + id;
+		String key = keyById(id);
+
 		try (Jedis jedis = redisManager.getResource()) {
 			String json = jedis.get(key);
 			if (json != null) {
@@ -84,39 +96,31 @@ public class MovieRepositoryCacheDecorator extends AbstractRepository<Movie> {
 		if (movie != null) {
 			try (Jedis jedis = redisManager.getResource()) {
 				jedis.setex(key, ttlSeconds, gson.toJson(movie));
-			} catch (JedisConnectionException e) {
 			}
 		}
+
 		return movie;
 	}
 
 	@Override
 	public long countAll() {
 		String key = keyCount();
+
 		try (Jedis jedis = redisManager.getResource()) {
-			String cached = jedis.get(key);
-			if (cached != null) {
-				try {
-					return Long.parseLong(cached);
-				} catch (NumberFormatException ignored) {}
+			String cache = jedis.get(key);
+			if (cache != null) {
+				return Long.parseLong(cache);
 			}
 		} catch (JedisConnectionException e) {
 			return delegate.countAll();
 		}
 
 		long count = delegate.countAll();
+
 		try (Jedis jedis = redisManager.getResource()) {
 			jedis.setex(key, ttlSeconds, String.valueOf(count));
-		} catch (JedisConnectionException e) {
 		}
-		return count;
-	}
 
-	public void invalidateCache(ObjectId id) {
-		String key = "clients:" + id;
-		try (Jedis jedis = redisManager.getResource()) {
-			jedis.del(key);
-		} catch (JedisConnectionException e) {
-		}
+		return count;
 	}
 }
