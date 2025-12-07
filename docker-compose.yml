@@ -30,7 +30,7 @@ services:
     networks:
       - mongonet
     ports:
-      - "27018:27017"
+      - "27018:27018"
     user: mongodb
     volumes:
       - mongo-db-data-2:/data/db
@@ -39,9 +39,9 @@ services:
       - MONGO_INITDB_ROOT_USERNAME=admin
       - MONGO_INITDB_ROOT_PASSWORD=adminpassword
       - MONGO_INITDB_DATABASE=absolute_cinema
-    command: mongod --config /etc/mongod.conf --port 27017
+    command: mongod --config /etc/mongod.conf --port 27018
     healthcheck:
-      test: [ "CMD", "mongosh", "--port", "27017" , "--eval", "db.adminCommand('ping')" ]
+      test: [ "CMD", "mongosh", "--port", "27018" , "--eval", "db.adminCommand('ping')" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -53,7 +53,7 @@ services:
     networks:
       - mongonet
     ports:
-      - "27019:27017"
+      - "27019:27019"
     user: mongodb
     volumes:
       - mongo-db-data-3:/data/db
@@ -62,9 +62,9 @@ services:
       - MONGO_INITDB_ROOT_USERNAME=admin
       - MONGO_INITDB_ROOT_PASSWORD=adminpassword
       - MONGO_INITDB_DATABASE=absolute_cinema
-    command: mongod --config /etc/mongod.conf --port 27017
+    command: mongod --config /etc/mongod.conf --port 27019
     healthcheck:
-      test: [ "CMD", "mongosh", "--port", "27017" , "--eval", "db.adminCommand('ping')" ]
+      test: [ "CMD", "mongosh", "--port", "27019" , "--eval", "db.adminCommand('ping')" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -92,8 +92,8 @@ services:
           version: 1,
           members: [
             { _id: 0, host : "mongodb1:27017" },
-            { _id: 1, host : "mongodb2:27017" },
-            { _id: 2, host : "mongodb3:27017" }
+            { _id: 1, host : "mongodb2:27018" },
+            { _id: 2, host : "mongodb3:27019" }
           ]
         }
       );
