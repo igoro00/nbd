@@ -47,7 +47,7 @@ public class ClientCacheBenchmark {
 
     @Benchmark
     public void test_CacheMiss(Blackhole bh) {
-        cacheDecorator.invalidateCache(testId); // unieważnienie cache
+        cacheDecorator.invalidateOne(testId); // unieważnienie cache
         Client client = cacheDecorator.findById(testId);
         bh.consume(client);
     }

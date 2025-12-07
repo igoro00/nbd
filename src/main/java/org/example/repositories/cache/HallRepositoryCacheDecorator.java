@@ -13,7 +13,7 @@ import com.google.gson.GsonBuilder;
 import java.util.Arrays;
 import java.util.List;
 
-public class HallRepositoryCacheDecorator extends AbstractRepository<Hall> {
+public class HallRepositoryCacheDecorator extends AbstractCacheDecorator<Hall> {
 
 	private final HallRepository delegate;
 	private final RedisManager redisManager;
@@ -29,16 +29,21 @@ public class HallRepositoryCacheDecorator extends AbstractRepository<Hall> {
 		this.ttlSeconds = redisManager.getHallTtlSeconds();
 	}
 
-	private String keyAll() {return "halls:all";}
-	private String keyCount() {return "halls:count";}
-	private String keyId(ObjectId id) {return "halls:" + id;}
+	@Override
+	String keyAll() {return "halls:all";}
+	@Override
+	String keyCount() {return "halls:count";}
+	@Override
+	String keyById(ObjectId id) {return "halls:" + id;}
 
-	public void invalidateCache(ObjectId id) {
+	@Override
+	public void invalidateOne(ObjectId id) {
 		try (Jedis jedis = redisManager.getResource()) {
-			jedis.del(keyId(id));
+			jedis.del(keyById(id));
 		} catch (JedisConnectionException ignored) {}
 	}
 
+	@Override
 	public void invalidateAll() {
 		try (Jedis jedis = redisManager.getResource()) {
 			jedis.del(keyAll());
@@ -50,7 +55,7 @@ public class HallRepositoryCacheDecorator extends AbstractRepository<Hall> {
 	public Hall add(Hall hall) {
 		delegate.add(hall);
 		invalidateAll();
-		invalidateCache(hall.getEntityId());
+		invalidateOne(hall.getEntityId());
 		return hall;
 	}
 
@@ -78,7 +83,7 @@ public class HallRepositoryCacheDecorator extends AbstractRepository<Hall> {
 
 	@Override
 	public Hall findById(ObjectId id) {
-		String key = keyId(id);
+		String key = keyById(id);
 
 		try (Jedis jedis = redisManager.getResource()) {
 			String json = jedis.get(key);

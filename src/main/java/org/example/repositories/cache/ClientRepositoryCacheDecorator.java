@@ -14,7 +14,7 @@ import com.google.gson.GsonBuilder;
 import java.util.Arrays;
 import java.util.List;
 
-public class ClientRepositoryCacheDecorator extends AbstractRepository<Client> {
+public class ClientRepositoryCacheDecorator extends AbstractCacheDecorator<Client> {
 
     private final ClientRepository delegate;
     private final RedisManager redisManager;
@@ -28,21 +28,25 @@ public class ClientRepositoryCacheDecorator extends AbstractRepository<Client> {
         this.redisManager = redisManager;
         this.ttlSeconds = redisManager.getClientTtlSeconds();
     }
-    
-    private String keyAll() {
+    @Override
+    String keyAll() {
         return "clients:all";
     }
-    private String keyCount() {
+    @Override
+    String keyCount() {
         return "clients:count";
     }
-    private String keyId(ObjectId id){return "clients:" + id;}
+    @Override
+    String keyById(ObjectId id){return "clients:" + id;}
 
-    public void invalidateCache(ObjectId id) {
+    @Override
+    public void invalidateOne(ObjectId id) {
         try (Jedis jedis = redisManager.getResource()) {
-            jedis.del(keyId(id));
+            jedis.del(keyById(id));
         } catch (JedisConnectionException ignored) {}
     }
 
+    @Override
     public void invalidateAll() {
         try (Jedis jedis = redisManager.getResource()) {
             jedis.del(keyAll());
@@ -50,13 +54,15 @@ public class ClientRepositoryCacheDecorator extends AbstractRepository<Client> {
         } catch (JedisConnectionException ignored) {}
     }
 
+    @Override
     public Client add(Client client) {
         delegate.add(client);
         invalidateAll();
-        invalidateCache(client.getEntityId());
+        invalidateOne(client.getEntityId());
         return client;
     }
 
+    @Override
     public List<Client> findAll() {
         String key = keyAll();
 
@@ -80,7 +86,7 @@ public class ClientRepositoryCacheDecorator extends AbstractRepository<Client> {
 
     @Override
     public Client findById(ObjectId id) {
-        String key = keyId(id);
+        String key = keyById(id);
 
         try (Jedis jedis = redisManager.getResource()) {
             String json = jedis.get(key);

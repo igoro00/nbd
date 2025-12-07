@@ -13,7 +13,7 @@ import com.google.gson.GsonBuilder;
 import java.util.Arrays;
 import java.util.List;
 
-public class MovieRepositoryCacheDecorator extends AbstractRepository<Movie> {
+public class MovieRepositoryCacheDecorator extends AbstractCacheDecorator<Movie> {
 
 	private final MovieRepository delegate;
 	private final RedisManager redisManager;
@@ -29,18 +29,23 @@ public class MovieRepositoryCacheDecorator extends AbstractRepository<Movie> {
 		this.ttlSeconds = redisManager.getMovieTtlSeconds();
 	}
 
-	private String keyAll() { return "movies:all"; }
-	private String keyCount() { return "movies:count"; }
-	private String keyById(ObjectId id) { return "movies:" + id; }
+	@Override
+	String keyAll() { return "movies:all"; }
+	@Override
+	String keyCount() { return "movies:count"; }
+	@Override
+	String keyById(ObjectId id) { return "movies:" + id; }
 
-	private void invalidateAll() {
+	@Override
+	public void invalidateAll() {
 		try (Jedis jedis = redisManager.getResource()) {
 			jedis.del(keyAll());
 			jedis.del(keyCount());
 		}
 	}
 
-	private void invalidateOne(ObjectId id) {
+	@Override
+	public void invalidateOne(ObjectId id) {
 		try (Jedis jedis = redisManager.getResource()) {
 			jedis.del(keyById(id));
 		}
