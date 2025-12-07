@@ -25,7 +25,6 @@ public class CacheTest {
     private MovieRepository movieRepository;
     private ClientRepository clientRepository;
     private HallRepository hallRepository;
-    private RedisManager redisManager;
 
     private MovieRepositoryCacheDecorator movieCacheDecorator;
     private ClientRepositoryCacheDecorator clientCacheDecorator;
@@ -36,8 +35,8 @@ public class CacheTest {
     private HallManager hallManager;
 
     @BeforeEach
-    void setUp() throws Exception {
-        redisManager = new RedisManager();
+    void setUp() {
+        RedisManager redisManager = new RedisManager();
 
         movieRepository = new MovieRepository();
         clientRepository = new ClientRepository();
@@ -78,10 +77,10 @@ public class CacheTest {
                 "Steven",
                 "Spielberg"
         );
-        List<Movie> movies1 = movieCacheDecorator.findAll();
+        List<Movie> movies1 = movieManager.getAll();
         assertFalse(movies1.isEmpty());
         assertTrue(movies1.stream().anyMatch(m -> "Inception".equals(m.getTitle())));
-        List<Movie> movies2 = movieCacheDecorator.findAll();
+        List<Movie> movies2 = movieManager.getAll();
         assertEquals(movies1.size(), movies2.size());
         assertTrue(movies2.stream().anyMatch(m -> "Inception".equals(m.getTitle())));
     }
@@ -89,9 +88,9 @@ public class CacheTest {
     @Test
     void invalidateAllOnAdd() {
         movieManager.createMovie("Inception", Duration.ofMinutes(100), "Sci-Fi", 10.0, "Steven", "Spielberg");
-        List<Movie> firstLoad = movieCacheDecorator.findAll();
+        List<Movie> firstLoad = movieManager.getAll();
         movieManager.createMovie("Inception", Duration.ofMinutes(120), "Sci-Fi", 10.0, "Steven", "Spielberg");
-        List<Movie> secondLoad = movieCacheDecorator.findAll();
+        List<Movie> secondLoad = movieManager.getAll();
         assertEquals(1, firstLoad.size(), "Cache listy nie został unieważniony!");
         assertEquals(2, secondLoad.size(), "Cache listy nie został unieważniony!");
     }
@@ -105,21 +104,21 @@ public class CacheTest {
         assertEquals(count1 + 1, count2, "Cache count nie został unieważniony!");
     }
 
-@Test
-void addClientAndCheckCache() {
-    Address address = new Address("Łódź", "90-105", "Piotrkowska", "69/8");
-    clientManager.registerClient("Martin", "Smith", "martin.smith@example.com",
-            new java.util.GregorianCalendar(1978, java.util.Calendar.SEPTEMBER, 29).getTime(),
-            address);
+    @Test
+    void addClientAndCheckCache() {
+        Address address = new Address("Łódź", "90-105", "Piotrkowska", "69/8");
+        clientManager.registerClient("Martin", "Smith", "martin.smith@example.com",
+                new java.util.GregorianCalendar(1978, java.util.Calendar.SEPTEMBER, 29).getTime(),
+                address);
 
-    List<Client> clients1 = clientCacheDecorator.findAll();
-    assertFalse(clients1.isEmpty());
-    assertTrue(clients1.stream().anyMatch(c -> "Martin".equals(c.getFirstName()) && "Smith".equals(c.getLastName())));
+        List<Client> clients1 = clientManager.getAll();
+        assertFalse(clients1.isEmpty());
+        assertTrue(clients1.stream().anyMatch(c -> "Martin".equals(c.getFirstName()) && "Smith".equals(c.getLastName())));
 
-    List<Client> clients2 = clientCacheDecorator.findAll();
-    assertEquals(clients1.size(), clients2.size());
-    assertTrue(clients2.stream().anyMatch(c -> "Martin".equals(c.getFirstName()) && "Smith".equals(c.getLastName())));
-}
+        List<Client> clients2 = clientManager.getAll();
+        assertEquals(clients1.size(), clients2.size());
+        assertTrue(clients2.stream().anyMatch(c -> "Martin".equals(c.getFirstName()) && "Smith".equals(c.getLastName())));
+    }
 
     @Test
     void clientCacheInvalidationOnAdd() {
@@ -142,11 +141,11 @@ void addClientAndCheckCache() {
     void addHallAndCheckCache() {
         hallManager.createHall("Main Hall", 20, 15);
 
-        List<Hall> halls1 = hallCacheDecorator.findAll();
+        List<Hall> halls1 = hallManager.getAll();
         assertFalse(halls1.isEmpty());
         assertTrue(halls1.stream().anyMatch(h -> "Main Hall".equals(h.getName())));
 
-        List<Hall> halls2 = hallCacheDecorator.findAll();
+        List<Hall> halls2 = hallManager.getAll();
         assertEquals(halls1.size(), halls2.size());
         assertTrue(halls2.stream().anyMatch(h -> "Main Hall".equals(h.getName())));
     }
