@@ -29,8 +29,6 @@ public class CacheTest {
     private HallRepository hallRepository;
 
     private MovieRepositoryCacheDecorator movieCacheDecorator;
-    private ClientRepositoryCacheDecorator clientCacheDecorator;
-    private HallRepositoryCacheDecorator hallCacheDecorator;
 
     private MovieManager movieManager;
     private ClientManager clientManager;
@@ -40,7 +38,6 @@ public class CacheTest {
     private AtomicInteger clientMongoCalls;
     private AtomicInteger hallMongoCalls;
 
-    // ---------- COUNTING REPOSITORIES ----------
 
     private static class CountingMovieRepository extends MovieRepository {
         private final MovieRepository base;
@@ -75,7 +72,6 @@ public class CacheTest {
         @Override
         public void dropDatabase() { base.dropDatabase(); }
     }
-
 
     private static class CountingClientRepository extends ClientRepository {
         private final ClientRepository base;
@@ -133,8 +129,6 @@ public class CacheTest {
         public Hall add(Hall hall) { return base.add(hall); }
     }
 
-    // ---------- TEST SETUP ----------
-
     @BeforeEach
     void setUp() {
         RedisManager redisManager = new RedisManager();
@@ -148,8 +142,8 @@ public class CacheTest {
         hallRepository = new CountingHallRepository(hallMongoCalls);
 
         movieCacheDecorator = new MovieRepositoryCacheDecorator(movieRepository, redisManager);
-        clientCacheDecorator = new ClientRepositoryCacheDecorator(clientRepository, redisManager);
-        hallCacheDecorator = new HallRepositoryCacheDecorator(hallRepository, redisManager);
+        ClientRepositoryCacheDecorator clientCacheDecorator = new ClientRepositoryCacheDecorator(clientRepository, redisManager);
+        HallRepositoryCacheDecorator hallCacheDecorator = new HallRepositoryCacheDecorator(hallRepository, redisManager);
 
         movieManager = new MovieManager(movieCacheDecorator);
         clientManager = new ClientManager(clientCacheDecorator);
@@ -215,6 +209,11 @@ public class CacheTest {
         assertEquals(1, clientMongoCalls.get());
         clientManager.getAll();
         assertEquals(1, clientMongoCalls.get());
+        clientManager.registerClient("Martin2", "Smith2", "martin2@example.com",
+                new java.util.Date(), address);
+        clientManager.getAll();
+        assertEquals(2, clientMongoCalls.get());
+
     }
 
     @Test
@@ -224,5 +223,8 @@ public class CacheTest {
         assertEquals(1, hallMongoCalls.get());
         hallManager.getAll();
         assertEquals(1, hallMongoCalls.get());
+        hallManager.createHall("Main Hall2", 22, 16);
+        hallManager.getAll();
+        assertEquals(2, hallMongoCalls.get());
     }
 }
