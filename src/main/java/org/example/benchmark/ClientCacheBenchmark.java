@@ -2,6 +2,7 @@ package org.example.benchmark;
 
 import org.bson.types.ObjectId;
 import org.example.managers.RedisManager;
+import org.example.model.Address;
 import org.example.model.Client;
 import org.example.repositories.ClientRepository;
 import org.example.repositories.cache.ClientRepositoryCacheDecorator;
@@ -26,14 +27,18 @@ public class ClientCacheBenchmark {
 
     @Setup(Level.Trial)
     public void setup() {
+        Address address = new Address(
+                "Łódź",
+                "90-105",
+                "Piotrkowska",
+                "69/8"
+        );
         redisManager = new RedisManager();
         ClientRepository mongoRepo = new ClientRepository();
         cacheDecorator = new ClientRepositoryCacheDecorator(mongoRepo, redisManager);
-        // Przygotuj dane testowe
-        Client testClient = new Client("Benchmark", "Client", "bench@test.pl", new Date(), null);
+        Client testClient = new Client("Benchmark", "Client", "bench@test.pl", new Date(), address);
         mongoRepo.add(testClient);
         testId = testClient.getEntityId();
-        // Czyszczenie cache
         try (Jedis jedis = redisManager.getResource()) {
             jedis.flushAll();
         }
@@ -42,20 +47,19 @@ public class ClientCacheBenchmark {
     @TearDown(Level.Trial)
     public void tearDown() {
         if (redisManager != null) redisManager.close();
-        // Jeśli repozytorium wymaga zamknięcia, dodaj odpowiedni kod
     }
 
     @Benchmark
-    public void test_CacheMiss(Blackhole bh) {
-        cacheDecorator.invalidateOne(testId); // unieważnienie cache
+    public void test_Without_Cache(Blackhole bh) {
+        cacheDecorator.invalidateOne(testId);
         Client client = cacheDecorator.findById(testId);
         bh.consume(client);
     }
 
     @Benchmark
-    public void test_CacheHit(Blackhole bh) {
-        cacheDecorator.findById(testId); // załadowanie do cache
-        Client client = cacheDecorator.findById(testId); // odczyt z cache
+    public void test_With_Cache(Blackhole bh) {
+        cacheDecorator.findById(testId);
+        Client client = cacheDecorator.findById(testId);
         bh.consume(client);
     }
 }

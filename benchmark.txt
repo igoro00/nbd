@@ -1,0 +1,3 @@
+Benchmark                                Mode  Cnt     Score      Error  Units
+ClientCacheBenchmark.test_With_Cache     avgt    5  1110,268 ±   62,866  us/op
+ClientCacheBenchmark.test_Without_Cache  avgt    5  3428,504 ± 1497,594  us/op
