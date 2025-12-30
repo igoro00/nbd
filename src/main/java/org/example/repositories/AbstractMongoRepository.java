@@ -18,9 +18,7 @@ import org.bson.codecs.configuration.CodecRegistry;
 import org.bson.codecs.pojo.Conventions;
 import org.bson.codecs.pojo.PojoCodecProvider;
 import org.example.codecs.CustomCodecProvider;
-import org.example.model.AbstractEntity;
 
-import java.util.Arrays;
 import java.util.List;
 
 public abstract class AbstractMongoRepository<T extends AbstractEntity> extends AbstractRepository<T> implements AutoCloseable {

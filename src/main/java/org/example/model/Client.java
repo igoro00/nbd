@@ -1,90 +1,53 @@
 package org.example.model;
 
-import org.bson.codecs.pojo.annotations.BsonCreator;
-import org.bson.codecs.pojo.annotations.BsonProperty;
-import org.bson.types.ObjectId;
+import com.datastax.oss.driver.api.mapper.annotations.CqlName;
+import com.datastax.oss.driver.api.mapper.annotations.Entity;
+import com.datastax.oss.driver.api.mapper.annotations.PartitionKey;
+import com.datastax.oss.driver.api.mapper.annotations.PropertyStrategy;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.Date;
+import java.util.UUID;
 
-public class Client extends AbstractEntity {
-    @BsonProperty("first_name")
+@Setter
+@Getter
+@NoArgsConstructor
+@Entity
+@CqlName("clients")
+@PropertyStrategy(mutable = true)
+public class Client {
+    @PartitionKey
+    @CqlName("client_id")
+    private UUID id;
+
+    @CqlName("first_name")
     private String firstName;
 
-    @BsonProperty("last_name")
+    @CqlName("last_name")
     private String lastName;
 
-    @BsonProperty("date_of_birth")
+    @CqlName("date_of_birth")
     private Date dateOfBirth;
 
-    @BsonProperty("email")
+    @CqlName("email")
     private String email;
 
-    @BsonProperty("address")
+    @CqlName("address")
     private Address address;
 
     public Client(String firstName, String lastName, String email, Date dateOfBirth, Address address) {
-        super(new ObjectId());
+        this(UUID.randomUUID(), firstName, lastName, email, dateOfBirth, address);
+    }
+
+    public Client(UUID id, String firstName, String lastName, String email, Date dateOfBirth, Address address) {
+        this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
         this.dateOfBirth = dateOfBirth;
         this.email = email;
         this.address = address;
-    }
-
-    @BsonCreator
-    public Client(
-            @BsonProperty("_id") ObjectId entityId,
-            @BsonProperty("first_name") String firstName,
-            @BsonProperty("last_name") String lastName,
-            @BsonProperty("email") String email,
-            @BsonProperty("date_of_birth") Date dateOfBirth,
-            @BsonProperty("address") Address address) {
-        super(new ObjectId());
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.dateOfBirth = dateOfBirth;
-        this.email = email;
-        this.address = address;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public Date getDateOfBirth() {
-        return dateOfBirth;
-    }
-
-    public void setDateOfBirth(Date dateOfBirth) {
-        this.dateOfBirth = dateOfBirth;
-    }
-
-    public Address getAddress() {
-        return address;
-    }
-
-    public void setAddress(Address address) {
-        this.address = address;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
-
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
     }
 
     @Override
@@ -99,8 +62,6 @@ public class Client extends AbstractEntity {
         if (!lastName.equals(client.lastName)) return false;
         if (!email.equals(client.email)) return false;
         if (!dateOfBirth.equals(client.dateOfBirth)) return false;
-        if (!address.equals(client.address)) return false;
-
-        return true;
+        return address.equals(client.address);
     }
 }
