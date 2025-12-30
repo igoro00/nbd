@@ -6,7 +6,9 @@ import com.datastax.oss.driver.api.mapper.annotations.PartitionKey;
 import com.datastax.oss.driver.api.mapper.annotations.PropertyStrategy;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import org.apache.commons.lang3.builder.EqualsBuilder;
 
 import java.util.Date;
 import java.util.UUID;
@@ -14,6 +16,7 @@ import java.util.UUID;
 @Setter
 @Getter
 @NoArgsConstructor
+@RequiredArgsConstructor
 @Entity
 @CqlName("clients")
 @PropertyStrategy(mutable = true)
@@ -58,10 +61,12 @@ public class Client {
 
         Client client = (Client) o;
 
-        if (!firstName.equals(client.firstName)) return false;
-        if (!lastName.equals(client.lastName)) return false;
-        if (!email.equals(client.email)) return false;
-        if (!dateOfBirth.equals(client.dateOfBirth)) return false;
-        return address.equals(client.address);
+        return new EqualsBuilder()
+                .append(firstName, client.firstName)
+                .append(lastName, client.lastName)
+                .append(email, client.email)
+                .append(dateOfBirth, client.dateOfBirth)
+                .append(address, client.address)
+                .isEquals();
     }
 }

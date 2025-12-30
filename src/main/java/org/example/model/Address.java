@@ -1,75 +1,39 @@
 package org.example.model;
 
-import org.bson.codecs.pojo.annotations.BsonCreator;
-import org.bson.codecs.pojo.annotations.BsonProperty;
+import com.datastax.oss.driver.api.mapper.annotations.CqlName;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import org.apache.commons.lang3.builder.EqualsBuilder;
 
+@Getter
+@Setter
+@NoArgsConstructor
+@RequiredArgsConstructor
 public class Address {
-    @BsonProperty("city")
+    @CqlName("city")
     private String city;
 
-    @BsonProperty("zip_code")
+    @CqlName("zip_code")
     private String zipCode;
 
-    @BsonProperty("street")
+    @CqlName("street")
     private String street;
 
-    @BsonProperty("number")
+    @CqlName("number")
     private String number;
-
-    @BsonCreator
-    public Address(
-            @BsonProperty("city") String city,
-            @BsonProperty("zip_code") String zipCode,
-            @BsonProperty("street") String street,
-            @BsonProperty("number") String number
-    ) {
-        this.city = city;
-        this.zipCode = zipCode;
-        this.street = street;
-        this.number = number;
-    }
-
-    public String getCity() {
-        return city;
-    }
-
-    public void setCity(String city) {
-        this.city = city;
-    }
-
-    public String getZipCode() {
-        return zipCode;
-    }
-
-    public void setZipCode(String zipCode) {
-        this.zipCode = zipCode;
-    }
-
-    public String getStreet() {
-        return street;
-    }
-
-    public void setStreet(String street) {
-        this.street = street;
-    }
-
-    public String getNumber() {
-        return number;
-    }
-
-    public void setNumber(String number) {
-        this.number = number;
-    }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Address address = (Address) o;
-        if (!city.equals(address.city)) return false;
-        if (!zipCode.equals(address.zipCode)) return false;
-        if (!street.equals(address.street)) return false;
-        if (!number.equals(address.number)) return false;
-        return true;
+        return new EqualsBuilder()
+                .append(city, address.city)
+                .append(zipCode, address.zipCode)
+                .append(street, address.street)
+                .append(number, address.number)
+                .isEquals();
     }
 }
