@@ -1,7 +1,7 @@
 import org.example.managers.*;
 import org.example.model.*;
 import org.example.model.Client;
-import org.example.repositories.*;
+import org.example.mappers.*;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;

@@ -2,7 +2,7 @@ package org.example.managers;
 
 import org.example.model.Movie;
 import org.example.model.ScreeningByMovie;
-import org.example.repositories.ScreeningRepository;
+import org.example.mappers.ScreeningRepository;
 
 import java.util.Date;
 import java.util.List;

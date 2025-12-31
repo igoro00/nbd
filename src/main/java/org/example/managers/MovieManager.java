@@ -1,6 +1,6 @@
 package org.example.managers;
 
-import org.example.repositories.AbstractRepository;
+import org.example.mappers.AbstractRepository;
 import org.example.model.Movie;
 
 import java.time.Duration;

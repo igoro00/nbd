@@ -1,7 +1,7 @@
 package org.example.managers;
 
 import lombok.Getter;
-import org.example.repositories.AbstractRepository;
+import org.example.mappers.AbstractRepository;
 import org.example.model.Address;
 import org.example.model.Client;
 

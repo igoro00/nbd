@@ -19,7 +19,6 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 @AllArgsConstructor
 @Entity
 @CqlName("movies")
-@PropertyStrategy(mutable = true)
 public class Movie {
     @PartitionKey
     @CqlName("movie_id")

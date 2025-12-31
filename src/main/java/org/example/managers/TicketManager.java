@@ -4,7 +4,7 @@ import com.mongodb.MongoWriteException;
 import org.example.model.ScreeningByMovie;
 import org.example.model.TicketByScreening;
 import org.example.model.Client;
-import org.example.repositories.TicketRepository;
+import org.example.mappers.TicketRepository;
 
 import java.util.List;
 
