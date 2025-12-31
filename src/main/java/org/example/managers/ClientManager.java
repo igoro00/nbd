@@ -1,9 +1,7 @@
 package org.example.managers;
 
 import lombok.Getter;
-import org.example.model.Hall;
 import org.example.repositories.AbstractRepository;
-import org.example.repositories.ClientRepository;
 import org.example.model.Address;
 import org.example.model.Client;
 

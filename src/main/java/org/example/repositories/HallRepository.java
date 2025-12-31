@@ -5,8 +5,6 @@ import com.mongodb.client.model.IndexOptions;
 import com.mongodb.client.model.Indexes;
 import org.bson.Document;
 import org.bson.types.ObjectId;
-import org.example.model.Client;
-import org.example.model.Hall;
 
 import java.util.ArrayList;
 import java.util.List;

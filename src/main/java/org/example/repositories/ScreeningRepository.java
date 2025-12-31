@@ -7,26 +7,24 @@ import com.mongodb.client.model.Filters;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
-import org.example.model.Hall;
 import org.example.model.Movie;
-import org.example.model.Screening;
-import org.example.model.Ticket;
+import org.example.model.ScreeningByMovie;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-public class ScreeningRepository extends AbstractMongoRepository<Screening> {
-    private final MongoCollection<Screening> collection;
+public class ScreeningRepository extends AbstractMongoRepository<ScreeningByMovie> {
+    private final MongoCollection<ScreeningByMovie> collection;
     public ScreeningRepository() {
         super();
 
-        collection = getMongoDatabase().getCollection("screenings", Screening.class);
+        collection = getMongoDatabase().getCollection("screenings", ScreeningByMovie.class);
     }
 
     @Override
-    public Screening add(Screening entity) {
+    public ScreeningByMovie add(ScreeningByMovie entity) {
         ClientSession session = getClientSession();
 
         try {
@@ -42,7 +40,7 @@ public class ScreeningRepository extends AbstractMongoRepository<Screening> {
             if (movie == null) {
                 throw new IllegalArgumentException("Invalid movie id");
             }
-            Screening collidingScreening = collection.find(getCollingScreeningsFilter(
+            ScreeningByMovie collidingScreeningByMovie = collection.find(getCollingScreeningsFilter(
                     entity.getHall(),
                     entity.getStartDate(),
                     new Date(
@@ -51,7 +49,7 @@ public class ScreeningRepository extends AbstractMongoRepository<Screening> {
                     )
             )).first();
 
-            if (collidingScreening != null) {
+            if (collidingScreeningByMovie != null) {
                 throw new IllegalArgumentException("There is already a screening in this hall at the given time.");
             }
             collection.insertOne(session, entity);
@@ -66,14 +64,14 @@ public class ScreeningRepository extends AbstractMongoRepository<Screening> {
     }
 
     @Override
-    public List<Screening> findAll() {
-        ArrayList<Screening> screenings = new ArrayList<>();
-        collection.find().into(screenings);
-        return screenings;
+    public List<ScreeningByMovie> findAll() {
+        ArrayList<ScreeningByMovie> screeningByMovies = new ArrayList<>();
+        collection.find().into(screeningByMovies);
+        return screeningByMovies;
     }
 
     @Override
-    public Screening findById(ObjectId id) {
+    public ScreeningByMovie findById(ObjectId id) {
         Document query = new Document("_id", id);
         return collection.find(query).first();
     }

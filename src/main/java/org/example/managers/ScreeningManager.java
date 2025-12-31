@@ -1,8 +1,7 @@
 package org.example.managers;
 
-import org.example.model.Hall;
 import org.example.model.Movie;
-import org.example.model.Screening;
+import org.example.model.ScreeningByMovie;
 import org.example.repositories.ScreeningRepository;
 
 import java.util.Date;
@@ -19,12 +18,12 @@ public class ScreeningManager implements AutoCloseable {
         return repository.countAll();
     }
 
-    public List<Screening> getAll() {
+    public List<ScreeningByMovie> getAll() {
         return repository.findAll();
     }
 
-    public Screening createScreening(Movie movie, Hall hall, Date screeningDate) {
-        return repository.add(new Screening(movie, hall, screeningDate));
+    public ScreeningByMovie createScreening(Movie movie, Hall hall, Date screeningDate) {
+        return repository.add(new ScreeningByMovie(movie, hall, screeningDate));
     }
 
     @Override

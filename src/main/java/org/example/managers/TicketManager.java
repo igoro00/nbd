@@ -1,8 +1,8 @@
 package org.example.managers;
 
 import com.mongodb.MongoWriteException;
-import org.example.model.Screening;
-import org.example.model.Ticket;
+import org.example.model.ScreeningByMovie;
+import org.example.model.TicketByScreening;
 import org.example.model.Client;
 import org.example.repositories.TicketRepository;
 
@@ -15,15 +15,15 @@ public class TicketManager implements AutoCloseable {
         this.repository = repository;
     }
 
-    public Ticket createTicket(Screening screening, Client client, int seatRow, int seatColumn) {
+    public TicketByScreening createTicket(ScreeningByMovie screeningByMovie, Client client, int seatRow, int seatColumn) {
         try {
-            return repository.add(new Ticket(screening, client, seatColumn, seatRow));
+            return repository.add(new TicketByScreening(screeningByMovie, client, seatColumn, seatRow));
         } catch (MongoWriteException e) {
             throw new IllegalArgumentException(e);
         }
     }
 
-    public List<Ticket> getAll(){
+    public List<TicketByScreening> getAll(){
         return repository.findAll();
     }
 

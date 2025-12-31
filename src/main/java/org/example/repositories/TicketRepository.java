@@ -9,19 +9,18 @@ import com.mongodb.client.model.Indexes;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.example.model.Client;
-import org.example.model.Hall;
-import org.example.model.Screening;
-import org.example.model.Ticket;
+import org.example.model.ScreeningByMovie;
+import org.example.model.TicketByScreening;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class TicketRepository extends AbstractMongoRepository<Ticket>{
-    private final MongoCollection<Ticket> collection;
+public class TicketRepository extends AbstractMongoRepository<TicketByScreening>{
+    private final MongoCollection<TicketByScreening> collection;
 
     public TicketRepository() {
         super();
-        collection = getMongoDatabase().getCollection("tickets", Ticket.class);
+        collection = getMongoDatabase().getCollection("tickets", TicketByScreening.class);
 
         IndexOptions indexOptions = new IndexOptions().unique(true);
         collection.createIndex(Indexes.ascending(
@@ -32,14 +31,14 @@ public class TicketRepository extends AbstractMongoRepository<Ticket>{
     }
 
     @Override
-    public Ticket add(Ticket entity) {
+    public TicketByScreening add(TicketByScreening entity) {
         ClientSession session = getClientSession();
 
         try {
             session.startTransaction();
-            MongoCollection<Screening> screeningCollection = getMongoDatabase().getCollection("screenings", Screening.class);
-            Screening screening = screeningCollection.find(session, Filters.eq("_id", entity.getScreening().getEntityId())).first();
-            if (screening == null) {
+            MongoCollection<ScreeningByMovie> screeningCollection = getMongoDatabase().getCollection("screenings", ScreeningByMovie.class);
+            ScreeningByMovie screeningByMovie = screeningCollection.find(session, Filters.eq("_id", entity.getScreening().getEntityId())).first();
+            if (screeningByMovie == null) {
                 throw new IllegalArgumentException("Invalid screening id");
             }
 
@@ -61,14 +60,14 @@ public class TicketRepository extends AbstractMongoRepository<Ticket>{
     }
 
     @Override
-    public List<Ticket> findAll() {
-        ArrayList<Ticket> arr = new ArrayList<>();
+    public List<TicketByScreening> findAll() {
+        ArrayList<TicketByScreening> arr = new ArrayList<>();
         collection.find().into(arr);
         return arr;
     }
 
     @Override
-    public Ticket findById(ObjectId id) {
+    public TicketByScreening findById(ObjectId id) {
         Document query = new Document("_id", id);
         return collection.find(query).first();
     }

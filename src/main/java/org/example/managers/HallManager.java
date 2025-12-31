@@ -1,8 +1,6 @@
 package org.example.managers;
 
-import org.example.model.Hall;
 import org.example.repositories.AbstractRepository;
-import org.example.repositories.HallRepository;
 
 import java.util.List;
 

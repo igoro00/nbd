@@ -4,10 +4,7 @@ import com.datastax.oss.driver.api.mapper.annotations.CqlName;
 import com.datastax.oss.driver.api.mapper.annotations.Entity;
 import com.datastax.oss.driver.api.mapper.annotations.PartitionKey;
 import com.datastax.oss.driver.api.mapper.annotations.PropertyStrategy;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 
 import java.util.Date;
@@ -16,14 +13,14 @@ import java.util.UUID;
 @Setter
 @Getter
 @NoArgsConstructor
-@RequiredArgsConstructor
+@AllArgsConstructor
 @Entity
 @CqlName("clients")
 @PropertyStrategy(mutable = true)
 public class Client {
     @PartitionKey
     @CqlName("client_id")
-    private UUID id;
+    private UUID clientId;
 
     @CqlName("first_name")
     private String firstName;
@@ -36,22 +33,6 @@ public class Client {
 
     @CqlName("email")
     private String email;
-
-    @CqlName("address")
-    private Address address;
-
-    public Client(String firstName, String lastName, String email, Date dateOfBirth, Address address) {
-        this(UUID.randomUUID(), firstName, lastName, email, dateOfBirth, address);
-    }
-
-    public Client(UUID id, String firstName, String lastName, String email, Date dateOfBirth, Address address) {
-        this.id = id;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.dateOfBirth = dateOfBirth;
-        this.email = email;
-        this.address = address;
-    }
 
     @Override
     public boolean equals(Object o) {
@@ -66,7 +47,6 @@ public class Client {
                 .append(lastName, client.lastName)
                 .append(email, client.email)
                 .append(dateOfBirth, client.dateOfBirth)
-                .append(address, client.address)
                 .isEquals();
     }
 }

@@ -1,7 +1,6 @@
 import org.example.managers.*;
 import org.example.model.*;
 import org.example.model.Client;
-import org.example.model.Director;
 import org.example.repositories.*;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -107,7 +106,7 @@ class ExampleTest {
         Assertions.assertEquals("Inception", movie.getTitle());
         Assertions.assertEquals(duration, movie.getDuration());
         Assertions.assertEquals("Sci-Fi", movie.getCategory());
-        Assertions.assertEquals(10.0, movie.getBasicPrice());
+        Assertions.assertEquals(10.0, movie.getPrice());
         Assertions.assertEquals("Steven", movie.getDirector().getFirstName());
         Assertions.assertEquals("Spielberg", movie.getDirector().getLastName());
         List<Movie> movieList = movieManager.getAll();
@@ -115,7 +114,7 @@ class ExampleTest {
         Assertions.assertEquals("Inception", movieList.getFirst().getTitle());
         Assertions.assertEquals(duration, movieList.getFirst().getDuration());
         Assertions.assertEquals("Sci-Fi", movieList.getFirst().getCategory());
-        Assertions.assertEquals(10.0, movieList.getFirst().getBasicPrice());
+        Assertions.assertEquals(10.0, movieList.getFirst().getPrice());
         Assertions.assertEquals("Steven", movieList.getFirst().getDirector().getFirstName());
         Assertions.assertEquals("Spielberg", movieList.getFirst().getDirector().getLastName());
     }
@@ -248,7 +247,7 @@ class ExampleTest {
         Movie movie = movieManager.createMovie("Inception", Duration.ofMinutes(148), "Sci-Fi", 12.0, "Christopher", "Nolan");
         Hall hall = hallManager.createHall("IMAX", 15, 10);
         Date screeningDate = new GregorianCalendar(2024, Calendar.DECEMBER, 20, 20, 0).getTime();
-        Screening screening = screeningManager.createScreening(movie, hall, screeningDate);
+        ScreeningByMovie screeningByMovie = screeningManager.createScreening(movie, hall, screeningDate);
         Client client = clientManager.registerClient(
                 "Alice",
                 "Johnson",
@@ -256,36 +255,36 @@ class ExampleTest {
                 new GregorianCalendar(1990, Calendar.JANUARY, 5).getTime(),
                 new Address("New York", "10001", "5th Avenue", "1A")
         );
-        ticketManager.createTicket(screening, client, 5, 7);
-        List<Ticket> ticketList = ticketManager.getAll();
-        Assertions.assertEquals(1, ticketList.size());
-        Assertions.assertEquals(screening, ticketList.getFirst().getScreening());
-        Assertions.assertEquals(client, ticketList.getFirst().getClient());
-        Assertions.assertEquals(7, ticketList.getFirst().getSeatColumn());
-        Assertions.assertEquals(5, ticketList.getFirst().getSeatRow());
+        ticketManager.createTicket(screeningByMovie, client, 5, 7);
+        List<TicketByScreening> ticketByScreeningList = ticketManager.getAll();
+        Assertions.assertEquals(1, ticketByScreeningList.size());
+        Assertions.assertEquals(screeningByMovie, ticketByScreeningList.getFirst().getScreening());
+        Assertions.assertEquals(client, ticketByScreeningList.getFirst().getClient());
+        Assertions.assertEquals(7, ticketByScreeningList.getFirst().getSeatColumn());
+        Assertions.assertEquals(5, ticketByScreeningList.getFirst().getSeatRow());
 
         Assertions.assertDoesNotThrow(()-> {;
-            ticketManager.createTicket(screening, client, 0, 0);
+            ticketManager.createTicket(screeningByMovie, client, 0, 0);
         });
 
         Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            ticketManager.createTicket(screening, client, -1, 0);
+            ticketManager.createTicket(screeningByMovie, client, -1, 0);
         });
 
         Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            ticketManager.createTicket(screening, client, 0, -1);
+            ticketManager.createTicket(screeningByMovie, client, 0, -1);
         });
 
         Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            ticketManager.createTicket(screening, client, hall.getColumns(), 0);
+            ticketManager.createTicket(screeningByMovie, client, hall.getColumns(), 0);
         });
 
         Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            ticketManager.createTicket(screening, client, 0, hall.getColumns());
+            ticketManager.createTicket(screeningByMovie, client, 0, hall.getColumns());
         });
 
         Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            ticketManager.createTicket(screening, client, 0, 0);
+            ticketManager.createTicket(screeningByMovie, client, 0, 0);
         });
     }
 }

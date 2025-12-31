@@ -1,9 +1,7 @@
 package org.example.managers;
 
 import org.example.repositories.AbstractRepository;
-import org.example.repositories.MovieRepository;
 import org.example.model.Movie;
-import org.example.model.Director;
 
 import java.time.Duration;
 import java.util.List;
