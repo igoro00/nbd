@@ -15,7 +15,7 @@ public interface ClientDao {
     PagingIterable<Client> getAll();
 
     @Insert
-    void save(Client client);
+    void add(Client client);
 
     @Update
     void update(Client client);

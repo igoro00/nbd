@@ -7,8 +7,9 @@ import org.example.EntityMapper;
 import org.example.EntityMapperBuilder;
 
 import java.net.InetSocketAddress;
+import java.util.List;
 
-public abstract class AbstractCassandraRepository {
+public abstract class AbstractCassandraRepository<T> {
     private final CqlSession session;
 
     @Getter
@@ -25,4 +26,12 @@ public abstract class AbstractCassandraRepository {
                 .build();
         mapper = new EntityMapperBuilder(session).build();
     }
+
+    public abstract void delete(T obj);
+
+    public abstract void update(T obj);
+
+    public abstract List<T> getAll();
+
+    public abstract void add(T obj);
 }

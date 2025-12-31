@@ -28,11 +28,11 @@ public class Client {
     @CqlName("last_name")
     private String lastName;
 
-    @CqlName("date_of_birth")
-    private Date dateOfBirth;
-
     @CqlName("email")
     private String email;
+
+    @CqlName("date_of_birth")
+    private Date dateOfBirth;
 
     @Override
     public boolean equals(Object o) {

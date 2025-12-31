@@ -2,6 +2,7 @@ import org.example.managers.*;
 import org.example.model.*;
 import org.example.model.Client;
 import org.example.mappers.*;
+import org.example.repositories.ClientRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
@@ -22,7 +23,7 @@ class ExampleTest {
     @BeforeEach
     public void setUp() throws Exception {
 
-        this.clientManager = new ClientManager(clientRepository);
+        this.clientManager = new ClientManager(new ClientRepository());
         this.clientManager.getRepository().dropDatabase();
         this.clientManager.close();
         clientRepository = new ClientRepository();

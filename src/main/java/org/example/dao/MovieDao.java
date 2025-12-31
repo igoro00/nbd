@@ -1,10 +1,7 @@
 package org.example.dao;
 
 import com.datastax.oss.driver.api.core.PagingIterable;
-import com.datastax.oss.driver.api.mapper.annotations.Dao;
-import com.datastax.oss.driver.api.mapper.annotations.Insert;
-import com.datastax.oss.driver.api.mapper.annotations.Select;
-import com.datastax.oss.driver.api.mapper.annotations.Update;
+import com.datastax.oss.driver.api.mapper.annotations.*;
 import org.example.model.Movie;
 
 import java.util.UUID;
@@ -12,14 +9,17 @@ import java.util.UUID;
 @Dao
 public interface MovieDao {
     @Select
-    PagingIterable<Movie> getMoviesById(UUID movieId);
+    PagingIterable<Movie> getByMovieId(UUID movieId);
 
     @Select
-    PagingIterable<Movie> getAllMovies();
+    PagingIterable<Movie> getAll();
 
     @Insert
-    void save(Movie movie);
+    void add(Movie movie);
 
     @Update
     void update(Movie movie);
+
+    @Delete
+    void delete(Movie movie);
 }

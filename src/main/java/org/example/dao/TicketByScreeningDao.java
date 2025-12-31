@@ -9,7 +9,10 @@ import java.util.UUID;
 @Dao
 public interface TicketByScreeningDao {
     @Select
-    PagingIterable<TicketByScreening> getTicketsForScreening(UUID screeningId);
+    PagingIterable<TicketByScreening> getAll();
+
+    @Select
+    PagingIterable<TicketByScreening> getByScreeningId(UUID screeningId);
 
     // used for buying tickets (doesn't permit double booking the same seat)
     // returns a bool telling you if it worked or not
