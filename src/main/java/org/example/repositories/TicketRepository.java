@@ -32,7 +32,7 @@ public class TicketRepository extends AbstractCassandraRepository<TicketByScreen
     }
 
     @Override
-    public void add(TicketByScreening obj) {
+    public void add(TicketByScreening obj) throws IllegalArgumentException{
         boolean result = getDao().buyTicket(obj);
         if (!result) {
             throw new IllegalArgumentException();

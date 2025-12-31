@@ -1,38 +1,27 @@
 package org.example.managers;
 
-import com.mongodb.MongoWriteException;
+import org.example.model.Client;
 import org.example.model.ScreeningByMovie;
 import org.example.model.TicketByScreening;
-import org.example.model.Client;
-import org.example.mappers.TicketRepository;
+import org.example.repositories.TicketRepository;
 
 import java.util.List;
 
-public class TicketManager implements AutoCloseable {
+public class TicketManager {
     private final TicketRepository repository;
 
     public TicketManager(TicketRepository repository) {
         this.repository = repository;
     }
 
-    public TicketByScreening createTicket(ScreeningByMovie screeningByMovie, Client client, int seatRow, int seatColumn) {
-        try {
-            return repository.add(new TicketByScreening(screeningByMovie, client, seatColumn, seatRow));
-        } catch (MongoWriteException e) {
-            throw new IllegalArgumentException(e);
-        }
+    public TicketByScreening createTicket(ScreeningByMovie screening, Client client, int seatRow, int seatColumn) throws IllegalArgumentException {
+        TicketByScreening ticket = new TicketByScreening(screening.getScreeningId(), client.getClientId(), seatColumn, seatRow);
+        repository.add(ticket);
+        return ticket;
     }
 
-    public List<TicketByScreening> getAll(){
-        return repository.findAll();
+    public List<TicketByScreening> getAll() {
+        return repository.getAll();
     }
 
-    public long getTicketCount() {
-        return repository.countAll();
-    }
-
-    @Override
-    public void close() throws Exception {
-        repository.close();
-    }
 }

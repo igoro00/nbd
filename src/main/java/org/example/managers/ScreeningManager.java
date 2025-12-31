@@ -1,33 +1,34 @@
 package org.example.managers;
 
+import org.example.UUID7;
+import org.example.repositories.ScreeningRepository;
 import org.example.model.Movie;
 import org.example.model.ScreeningByMovie;
-import org.example.mappers.ScreeningRepository;
 
 import java.util.Date;
 import java.util.List;
 
-public class ScreeningManager implements AutoCloseable {
+public class ScreeningManager {
     private final ScreeningRepository repository;
 
     public ScreeningManager(ScreeningRepository repository) {
         this.repository = repository;
     }
 
-    public long getScreeningCount() {
-        return repository.countAll();
-    }
-
     public List<ScreeningByMovie> getAll() {
-        return repository.findAll();
+        return repository.getAll();
     }
 
-    public ScreeningByMovie createScreening(Movie movie, Hall hall, Date screeningDate) {
-        return repository.add(new ScreeningByMovie(movie, hall, screeningDate));
-    }
-
-    @Override
-    public void close() throws Exception {
-        repository.close();
+    public ScreeningByMovie createScreening(Movie movie, String hallName, Date screeningDate) {
+        ScreeningByMovie screening = new ScreeningByMovie(
+                movie.getMovieId(),
+                UUID7.randomUUID(),
+                movie.getTitle(),
+                hallName,
+                screeningDate,
+                movie.getDuration()
+        );
+        repository.add(screening);
+        return screening;
     }
 }

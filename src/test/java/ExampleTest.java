@@ -3,6 +3,9 @@ import org.example.model.*;
 import org.example.model.Client;
 import org.example.mappers.*;
 import org.example.repositories.ClientRepository;
+import org.example.repositories.MovieRepository;
+import org.example.repositories.ScreeningRepository;
+import org.example.repositories.TicketRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,31 +23,29 @@ class ExampleTest {
     private TicketManager ticketManager;
     private ScreeningManager screeningManager;
 
+    private ClientRepository clientRepository;
+    private MovieRepository movieRepository;
+    private ScreeningRepository screeningRepository;
+    private TicketRepository ticketRepository;
     @BeforeEach
-    public void setUp() throws Exception {
-
-        this.clientManager = new ClientManager(new ClientRepository());
-        this.clientManager.getRepository().dropDatabase();
-        this.clientManager.close();
+    public void setUp() {
         clientRepository = new ClientRepository();
-        hallRepository = new HallRepository();
         movieRepository = new MovieRepository();
         screeningRepository = new ScreeningRepository();
         ticketRepository = new TicketRepository();
+
         this.clientManager = new ClientManager(clientRepository);
         this.movieManager = new MovieManager(movieRepository);
         this.screeningManager = new ScreeningManager(screeningRepository);
-        this.hallManager = new HallManager(hallRepository);
         this.ticketManager = new TicketManager(ticketRepository);
     }
 
     @AfterEach
-    public void close() throws Exception {
-        this.clientManager.close();
-        this.movieManager.close();
-        this.screeningManager.close();
-        this.hallManager.close();
-        this.ticketManager.close();
+    public void close() {
+        this.clientRepository.close();
+        this.movieRepository.close();
+        this.screeningRepository.close();
+        this.ticketRepository.close();
     }
 
     @Test
@@ -56,19 +57,11 @@ class ExampleTest {
     void createClientTest() {
         Date date = new GregorianCalendar(1978, Calendar.SEPTEMBER, 29).getTime();
 
-        Address address = new Address(
-            "Łódź",
-            "90-105",
-            "Piotrkowska",
-            "69/8"
-        );
-
         clientManager.registerClient(
             "Martin",
             "Smith",
             "martin.smith@example.com",
-            date,
-            address
+            date
         );
 
         List<Client> clientList = clientManager.getAll();

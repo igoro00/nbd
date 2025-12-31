@@ -30,8 +30,8 @@ public class ScreeningByMovie {
     private UUID screeningId;
 
     // Duplicate of Movie.name
-    @CqlName("movie_name")
-    private String movieName;
+    @CqlName("movie_title")
+    private String movieTitle;
 
     @CqlName("hall_name")
     private String hallName;

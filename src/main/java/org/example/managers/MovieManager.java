@@ -1,37 +1,24 @@
 package org.example.managers;
 
-import org.example.mappers.AbstractRepository;
+import lombok.RequiredArgsConstructor;
+import org.example.UUID7;
 import org.example.model.Movie;
+import org.example.repositories.MovieRepository;
 
 import java.time.Duration;
 import java.util.List;
 
-public class MovieManager implements AutoCloseable {
-    private final AbstractRepository<Movie> repository;
+@RequiredArgsConstructor
+public class MovieManager {
+    private final MovieRepository repository;
 
-    public MovieManager(AbstractRepository<Movie> repository) {
-        this.repository = repository;
-    }
-
-    public Movie createMovie(
-            String title,
-            Duration timeDuration,
-            String category,
-            double basicPrice,
-            String directorFirstName,
-            String directorLastName
-    ) {
-        Director director = new Director(directorFirstName, directorLastName);
-        Movie newMovie = new Movie(title, timeDuration, category, basicPrice, director);
-        return repository.add(newMovie);
+    public Movie createMovie(String title, Duration timeDuration, String category, double basicPrice, String directorName) {
+        Movie newMovie = new Movie(UUID7.randomUUID(), title, timeDuration, category, basicPrice, directorName);
+        repository.add(newMovie);
+        return newMovie;
     }
 
     public List<Movie> getAll() {
-        return repository.findAll();
-    }
-
-    @Override
-    public void close() throws Exception {
-        repository.close();
+        return repository.getAll();
     }
 }

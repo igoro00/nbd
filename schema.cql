@@ -29,7 +29,7 @@ CREATE TABLE IF NOT EXISTS movies (
 CREATE TABLE IF NOT EXISTS screenings_by_movie (
     movie_id uuid,
     screening_id uuid,
-    movie_name text,
+    movie_title text,
     hall_name text,
     start_date timestamp,
     movie_duration duration,

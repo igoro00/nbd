@@ -9,7 +9,7 @@ import org.example.EntityMapperBuilder;
 import java.net.InetSocketAddress;
 import java.util.List;
 
-public abstract class AbstractCassandraRepository<T> {
+public abstract class AbstractCassandraRepository<T> implements AutoCloseable {
     private final CqlSession session;
 
     @Getter
@@ -25,6 +25,10 @@ public abstract class AbstractCassandraRepository<T> {
                 .withKeyspace(CqlIdentifier.fromCql("absolute_cinema"))
                 .build();
         mapper = new EntityMapperBuilder(session).build();
+    }
+    @Override
+    public void close(){
+        session.close();
     }
 
     public abstract void delete(T obj);
