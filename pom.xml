@@ -13,6 +13,8 @@
         <maven.compiler.source>24</maven.compiler.source>
         <maven.compiler.target>24</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <cassandra.driver.groupId>com.datastax.oss</cassandra.driver.groupId>
+        <cassandra.driver.oss.version>4.17.0</cassandra.driver.oss.version>
     </properties>
 
     <build>
@@ -34,9 +36,9 @@
                             <version>1.37</version>
                         </path>
                         <path>
-                            <groupId>com.datastax.oss</groupId>
+                            <groupId>${cassandra.driver.groupId}</groupId>
                             <artifactId>java-driver-mapper-processor</artifactId>
-                            <version>4.15.0</version>
+                            <version>${cassandra.driver.oss.version}</version>
                         </path>
                     </annotationProcessorPaths>
                 </configuration>
@@ -62,20 +64,21 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.datastax.oss</groupId>
+            <groupId>${cassandra.driver.groupId}</groupId>
             <artifactId>java-driver-core</artifactId>
+            <version>${cassandra.driver.oss.version}</version>
         </dependency>
+
+        <!-- OPTIONAL DEPENDENCIES -->
         <dependency>
-            <groupId>com.datastax.oss</groupId>
+            <groupId>${cassandra.driver.groupId}</groupId>
             <artifactId>java-driver-query-builder</artifactId>
+            <version>${cassandra.driver.oss.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.datastax.oss</groupId>
+            <groupId>${cassandra.driver.groupId}</groupId>
             <artifactId>java-driver-mapper-runtime</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.datastax.oss</groupId>
-            <artifactId>java-driver-mapper-processor</artifactId>
+            <version>${cassandra.driver.oss.version}</version>
         </dependency>
 
         <dependency>
@@ -83,6 +86,13 @@
             <artifactId>lombok</artifactId>
             <version>1.18.42</version>
             <scope>provided</scope>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/com.fasterxml.uuid/java-uuid-generator -->
+        <dependency>
+            <groupId>com.fasterxml.uuid</groupId>
+            <artifactId>java-uuid-generator</artifactId>
+            <version>5.2.0</version>
         </dependency>
 
         <!-- https://mvnrepository.com/artifact/org.apache.commons/commons-lang3 -->

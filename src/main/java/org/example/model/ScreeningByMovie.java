@@ -4,7 +4,10 @@ import com.datastax.oss.driver.api.mapper.annotations.ClusteringColumn;
 import com.datastax.oss.driver.api.mapper.annotations.CqlName;
 import com.datastax.oss.driver.api.mapper.annotations.Entity;
 import com.datastax.oss.driver.api.mapper.annotations.PartitionKey;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 
 import java.time.Duration;
@@ -28,7 +31,7 @@ public class ScreeningByMovie {
 
     // Duplicate of Movie.name
     @CqlName("movie_name")
-    private Movie movieName;
+    private String movieName;
 
     @CqlName("hall_name")
     private String hallName;
@@ -48,12 +51,6 @@ public class ScreeningByMovie {
 
         ScreeningByMovie screeningByMovie = (ScreeningByMovie) o;
 
-        return new EqualsBuilder()
-                .append(this.movieId, screeningByMovie.movieId)
-                .append(this.movieName, screeningByMovie.movieName)
-                .append(this.hallName, screeningByMovie.hallName)
-                .append(this.startDate, screeningByMovie.startDate)
-                .append(this.movieDuration, screeningByMovie.movieDuration)
-                .isEquals();
+        return new EqualsBuilder().append(this.movieId, screeningByMovie.movieId).append(this.movieName, screeningByMovie.movieName).append(this.hallName, screeningByMovie.hallName).append(this.startDate, screeningByMovie.startDate).append(this.movieDuration, screeningByMovie.movieDuration).isEquals();
     }
 }

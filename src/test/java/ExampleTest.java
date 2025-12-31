@@ -16,19 +16,12 @@ import java.util.List;
 class ExampleTest {
     private ClientManager clientManager;
     private MovieManager movieManager;
-    private HallManager hallManager;
     private TicketManager ticketManager;
     private ScreeningManager screeningManager;
-    private ClientRepository clientRepository;
-    private HallRepository hallRepository;
-    private MovieRepository movieRepository;
-    private ScreeningRepository screeningRepository;
-    private TicketRepository ticketRepository;
 
     @BeforeEach
     public void setUp() throws Exception {
-        // Drop database using random manager
-        clientRepository = new ClientRepository();
+
         this.clientManager = new ClientManager(clientRepository);
         this.clientManager.getRepository().dropDatabase();
         this.clientManager.close();
