@@ -68,8 +68,6 @@
             <artifactId>java-driver-core</artifactId>
             <version>${cassandra.driver.oss.version}</version>
         </dependency>
-
-        <!-- OPTIONAL DEPENDENCIES -->
         <dependency>
             <groupId>${cassandra.driver.groupId}</groupId>
             <artifactId>java-driver-query-builder</artifactId>

@@ -2,6 +2,7 @@ services:
   cassandra1:
     image: bitnamilegacy/cassandra:latest
     hostname: cassandra1
+    container_name: cassandra1
     ports:
       - 7000:7000
       - 9042:9042
@@ -25,6 +26,7 @@ services:
   cassandra2:
     image: bitnamilegacy/cassandra:latest
     hostname: cassandra2
+    container_name: cassandra2
     ports:
       - 7001:7000
       - 9043:9042
@@ -47,6 +49,7 @@ services:
   cassandra3:
     image: bitnamilegacy/cassandra:latest
     hostname: cassandra3
+    container_name: cassandra3
     ports:
       - 7002:7000
       - 9044:9042

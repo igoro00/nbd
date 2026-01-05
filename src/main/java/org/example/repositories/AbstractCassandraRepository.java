@@ -5,11 +5,13 @@ import com.datastax.oss.driver.api.core.CqlSession;
 import lombok.Getter;
 import org.example.EntityMapper;
 import org.example.EntityMapperBuilder;
+import org.example.codecs.DurationCodec;
 
 import java.net.InetSocketAddress;
 import java.util.List;
 
 public abstract class AbstractCassandraRepository<T> implements AutoCloseable {
+    @Getter
     private final CqlSession session;
 
     @Getter
@@ -17,11 +19,12 @@ public abstract class AbstractCassandraRepository<T> implements AutoCloseable {
 
     public AbstractCassandraRepository(){
         session = CqlSession.builder()
-                .addContactPoint(new InetSocketAddress("cassandra1", 9042))
-                .addContactPoint(new InetSocketAddress("cassandra2", 9043))
-                .addContactPoint(new InetSocketAddress("cassandra3", 9044))
+                .addContactPoint(new InetSocketAddress("localhost", 9042))
+                .addContactPoint(new InetSocketAddress("localhost", 9043))
+                .addContactPoint(new InetSocketAddress("localhost", 9044))
                 .withLocalDatacenter("dc1")
                 .withAuthCredentials("cassandra", "cassandrapassword")
+                .addTypeCodecs(new DurationCodec())
                 .withKeyspace(CqlIdentifier.fromCql("absolute_cinema"))
                 .build();
         mapper = new EntityMapperBuilder(session).build();

@@ -11,7 +11,7 @@ import lombok.Setter;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 
 import java.time.Duration;
-import java.util.Date;
+import java.time.Instant;
 import java.util.UUID;
 
 @Getter
@@ -37,7 +37,7 @@ public class ScreeningByMovie {
     private String hallName;
 
     @CqlName("start_date")
-    private Date startDate;
+    private Instant startDate;
 
     // Duplicate of Movie.duration
     @CqlName("movie_duration")
@@ -51,6 +51,12 @@ public class ScreeningByMovie {
 
         ScreeningByMovie screeningByMovie = (ScreeningByMovie) o;
 
-        return new EqualsBuilder().append(this.movieId, screeningByMovie.movieId).append(this.movieName, screeningByMovie.movieName).append(this.hallName, screeningByMovie.hallName).append(this.startDate, screeningByMovie.startDate).append(this.movieDuration, screeningByMovie.movieDuration).isEquals();
+        return new EqualsBuilder()
+                .append(this.movieId, screeningByMovie.movieId)
+                .append(this.movieTitle, screeningByMovie.movieTitle)
+                .append(this.hallName, screeningByMovie.hallName)
+                .append(this.startDate, screeningByMovie.startDate)
+                .append(this.movieDuration, screeningByMovie.movieDuration)
+                .isEquals();
     }
 }

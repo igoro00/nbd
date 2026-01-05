@@ -5,9 +5,9 @@ import org.example.dao.MovieDao;
 import org.example.model.Movie;
 
 import java.util.List;
+import java.util.UUID;
 
 public class MovieRepository extends AbstractCassandraRepository<Movie> {
-    @Getter
     private final MovieDao dao;
 
     public MovieRepository() {
@@ -17,21 +17,25 @@ public class MovieRepository extends AbstractCassandraRepository<Movie> {
 
     @Override
     public void delete(Movie obj) {
-        getDao().delete(obj);
+        this.dao.delete(obj);
     }
 
     @Override
     public void update(Movie obj) {
-        getDao().update(obj);
+        this.dao.update(obj);
     }
 
     @Override
     public List<Movie> getAll() {
-        return getDao().getAll().all();
+        return this.dao.getAll().all();
+    }
+
+    public Movie getById(UUID id){
+        return this.dao.getByMovieId(id).one();
     }
 
     @Override
     public void add(Movie obj) {
-        getDao().add(obj);
+        this.dao.add(obj);
     }
 }

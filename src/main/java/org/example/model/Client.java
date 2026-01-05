@@ -7,7 +7,7 @@ import com.datastax.oss.driver.api.mapper.annotations.PropertyStrategy;
 import lombok.*;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 
-import java.util.Date;
+import java.time.Instant;
 import java.util.UUID;
 
 @Setter
@@ -32,7 +32,7 @@ public class Client {
     private String email;
 
     @CqlName("date_of_birth")
-    private Date dateOfBirth;
+    private Instant dateOfBirth;
 
     @Override
     public boolean equals(Object o) {

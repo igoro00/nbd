@@ -5,9 +5,10 @@ import org.example.dao.ClientDao;
 import org.example.model.Client;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 public class ClientRepository extends AbstractCassandraRepository<Client> {
-    @Getter
     private final ClientDao dao;
 
     public ClientRepository() {
@@ -17,22 +18,26 @@ public class ClientRepository extends AbstractCassandraRepository<Client> {
 
     @Override
     public void delete(Client obj) {
-        getDao().delete(obj);
+        this.dao.delete(obj);
     }
 
     @Override
     public void update(Client obj) {
-        getDao().update(obj);
+        this.dao.update(obj);
     }
 
     @Override
     public List<Client> getAll() {
-        return getDao().getAll().all();
+        return this.dao.getAll().all();
+    }
+
+    public Client getById(UUID id){
+        return this.dao.getByClientId(id).one();
     }
 
     @Override
     public void add(Client obj) {
-        getDao().add(obj);
+        this.dao.add(obj);
     }
 
 }

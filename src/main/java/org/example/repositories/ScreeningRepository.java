@@ -2,13 +2,12 @@ package org.example.repositories;
 
 import lombok.Getter;
 import org.example.dao.ScreeningByMovieDao;
-import org.example.model.Client;
 import org.example.model.ScreeningByMovie;
 
 import java.util.List;
+import java.util.UUID;
 
 public class ScreeningRepository extends AbstractCassandraRepository<ScreeningByMovie> {
-    @Getter
     private final ScreeningByMovieDao dao;
 
     public ScreeningRepository() {
@@ -18,21 +17,25 @@ public class ScreeningRepository extends AbstractCassandraRepository<ScreeningBy
 
     @Override
     public void delete(ScreeningByMovie obj) {
-        getDao().delete(obj);
+        this.dao.delete(obj);
     }
 
     @Override
     public void update(ScreeningByMovie obj) {
-        getDao().update(obj);
+        this.dao.update(obj);
     }
 
     @Override
     public List<ScreeningByMovie> getAll() {
-        return getDao().getAll().all();
+        return this.dao.getAll().all();
+    }
+
+    public List<ScreeningByMovie> getByMovieId(UUID movieId){
+        return this.dao.getByMovieId(movieId).all();
     }
 
     @Override
     public void add(ScreeningByMovie obj) {
-        getDao().add(obj);
+        this.dao.add(obj);
     }
 }

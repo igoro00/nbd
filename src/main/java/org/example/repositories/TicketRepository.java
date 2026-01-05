@@ -2,13 +2,12 @@ package org.example.repositories;
 
 import lombok.Getter;
 import org.example.dao.TicketByScreeningDao;
-import org.example.model.Client;
 import org.example.model.TicketByScreening;
 
 import java.util.List;
+import java.util.UUID;
 
 public class TicketRepository extends AbstractCassandraRepository<TicketByScreening> {
-    @Getter
     private final TicketByScreeningDao dao;
 
     public TicketRepository() {
@@ -18,26 +17,28 @@ public class TicketRepository extends AbstractCassandraRepository<TicketByScreen
 
     @Override
     public void delete(TicketByScreening obj) {
-        getDao().delete(obj);
+        this.dao.delete(obj);
     }
 
     @Override
     public void update(TicketByScreening obj) {
-        getDao().update(obj);
+        this.dao.update(obj);
     }
 
     @Override
     public List<TicketByScreening> getAll() {
-        return getDao().getAll().all();
+        return this.dao.getAll().all();
+    }
+
+    public List<TicketByScreening> getByScreeningId(UUID screeningId) {
+        return this.dao.getByScreeningId(screeningId).all();
     }
 
     @Override
     public void add(TicketByScreening obj) throws IllegalArgumentException{
-        boolean result = getDao().buyTicket(obj);
+        boolean result = this.dao.buyTicket(obj);
         if (!result) {
             throw new IllegalArgumentException();
         }
     }
-
-
 }

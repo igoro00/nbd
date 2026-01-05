@@ -1,21 +1,35 @@
-import org.example.managers.*;
-import org.example.model.*;
+import org.example.managers.ClientManager;
+import org.example.managers.MovieManager;
+import org.example.managers.ScreeningManager;
+import org.example.managers.TicketManager;
 import org.example.model.Client;
-import org.example.mappers.*;
+import org.example.model.Movie;
+import org.example.model.ScreeningByMovie;
+import org.example.model.TicketByScreening;
 import org.example.repositories.ClientRepository;
 import org.example.repositories.MovieRepository;
 import org.example.repositories.ScreeningRepository;
 import org.example.repositories.TicketRepository;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.List;
+import java.net.InetSocketAddress;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.stream.Collectors;
+
+import com.datastax.oss.driver.api.core.CqlIdentifier;
+import com.datastax.oss.driver.api.core.CqlSession;
+import java.util.UUID;
 
 class ExampleTest {
     private ClientManager clientManager;
@@ -27,8 +41,20 @@ class ExampleTest {
     private MovieRepository movieRepository;
     private ScreeningRepository screeningRepository;
     private TicketRepository ticketRepository;
+
+    private static Instant atDate(int year, int monthZeroBased, int day) {
+        return LocalDate.of(year, monthZeroBased + 1, day).atStartOfDay(ZoneId.systemDefault()).toInstant();
+    }
+
     @BeforeEach
-    public void setUp() {
+    public void setUp() throws Exception {
+        try (ClientRepository repo = new ClientRepository()) {
+            CqlSession session = repo.getSession();
+            session.execute("TRUNCATE clients");
+            session.execute("TRUNCATE movies");
+            session.execute("TRUNCATE screenings_by_movie");
+            session.execute("TRUNCATE tickets_by_screening");
+        }
         clientRepository = new ClientRepository();
         movieRepository = new MovieRepository();
         screeningRepository = new ScreeningRepository();
@@ -49,229 +75,110 @@ class ExampleTest {
     }
 
     @Test
-    void isRepository(){
-        Assertions.assertNotNull(clientManager);
+    public void clientCrudWorks() {
+        Instant dob = atDate(1990, Calendar.JANUARY, 1);
+        Client client = clientManager.registerClient("John", "Doe", "john@example.com", dob);
+        Assertions.assertNotNull(client);
+
+        Client fetched = clientManager.getById(client.getClientId());
+        Assertions.assertNotNull(fetched);
+        Assertions.assertEquals(client.getEmail(), fetched.getEmail());
+
+        // update
+        fetched.setEmail("john.new@example.com");
+        clientManager.update(fetched);
+        Client updated = clientManager.getById(client.getClientId());
+        Assertions.assertEquals("john.new@example.com", updated.getEmail());
+
+        // delete
+        clientManager.delete(updated);
+        Client deleted = clientManager.getById(client.getClientId());
+        Assertions.assertNull(deleted);
     }
 
     @Test
-    void createClientTest() {
-        Date date = new GregorianCalendar(1978, Calendar.SEPTEMBER, 29).getTime();
+    public void movieCrudWorks() {
+        Movie movie = movieManager.createMovie("Test Movie", Duration.ofMinutes(120), "Drama", 10.0, "Director");
+        Assertions.assertNotNull(movie);
 
-        clientManager.registerClient(
-            "Martin",
-            "Smith",
-            "martin.smith@example.com",
-            date
-        );
+        Movie fetched = movieManager.getById(movie.getMovieId());
+        Assertions.assertNotNull(fetched);
+        Assertions.assertEquals(movie.getTitle(), fetched.getTitle());
 
-        List<Client> clientList = clientManager.getAll();
-        Client client = clientList.getFirst();
-        Assertions.assertEquals(1, clientList.size());
+        // update
+        fetched.setPrice(12.5);
+        movieManager.update(fetched);
+        Movie updated = movieManager.getById(movie.getMovieId());
+        Assertions.assertEquals(12.5, updated.getPrice());
 
-        Assertions.assertEquals("Martin", client.getFirstName());
-        Assertions.assertEquals("Smith", client.getLastName());
-        Assertions.assertEquals(date, client.getDateOfBirth());
-        Assertions.assertEquals("martin.smith@example.com", client.getEmail());
-
-        Assertions.assertEquals("Łódź", client.getAddress().getCity());
-        Assertions.assertEquals("90-105", client.getAddress().getZipCode());
-        Assertions.assertEquals("Piotrkowska", client.getAddress().getStreet());
-        Assertions.assertEquals("69/8", client.getAddress().getNumber());
+        // delete
+        movieManager.delete(updated);
+        Movie deleted = movieManager.getById(movie.getMovieId());
+        Assertions.assertNull(deleted);
     }
 
     @Test
-    void createMovieTest(){
-        Duration duration = Duration.ofMinutes(120);
-        Movie movie = movieManager.createMovie(
-            "Inception",
-            duration,
-            "Sci-Fi",
-            10.0,
-            "Steven",
-            "Spielberg"
-            );
-        Assertions.assertEquals("Inception", movie.getTitle());
-        Assertions.assertEquals(duration, movie.getDuration());
-        Assertions.assertEquals("Sci-Fi", movie.getCategory());
-        Assertions.assertEquals(10.0, movie.getPrice());
-        Assertions.assertEquals("Steven", movie.getDirector().getFirstName());
-        Assertions.assertEquals("Spielberg", movie.getDirector().getLastName());
-        List<Movie> movieList = movieManager.getAll();
-        Assertions.assertEquals(1, movieList.size());
-        Assertions.assertEquals("Inception", movieList.getFirst().getTitle());
-        Assertions.assertEquals(duration, movieList.getFirst().getDuration());
-        Assertions.assertEquals("Sci-Fi", movieList.getFirst().getCategory());
-        Assertions.assertEquals(10.0, movieList.getFirst().getPrice());
-        Assertions.assertEquals("Steven", movieList.getFirst().getDirector().getFirstName());
-        Assertions.assertEquals("Spielberg", movieList.getFirst().getDirector().getLastName());
+    public void screeningCrudWorks() {
+        // need a movie for screening
+        Movie movie = movieManager.createMovie("Screen Test", Duration.ofMinutes(90), "Action", 8.0, "Dir");
+
+        Instant start = Instant.now();
+        ScreeningByMovie screening = screeningManager.createScreening(movie, "Hall A", start);
+        Assertions.assertNotNull(screening);
+
+        List<ScreeningByMovie> byMovie = screeningManager.getByMovie(movie.getMovieId());
+        Assertions.assertTrue(byMovie.stream().anyMatch(s -> s.getScreeningId().equals(screening.getScreeningId())));
+
+        // update
+        screening.setHallName("Hall B");
+        screeningManager.update(screening);
+        List<ScreeningByMovie> afterUpdate = screeningManager.getByMovie(movie.getMovieId());
+        Assertions.assertTrue(afterUpdate.stream().anyMatch(s -> "Hall B".equals(s.getHallName())));
+
+        // delete
+        screeningManager.delete(screening);
+        List<ScreeningByMovie> afterDelete = screeningManager.getByMovie(movie.getMovieId());
+        Assertions.assertFalse(afterDelete.stream().anyMatch(s -> s.getScreeningId().equals(screening.getScreeningId())));
     }
 
     @Test
-    void screeningTest() {
-        Movie movie = movieManager.createMovie("Jurassic Park", Duration.ofMinutes(120), "Adventure", 15.0, "Steven", "Spielberg");
-        Hall hall = hallManager.createHall("sala",10, 10);
-        Hall hall2 = hallManager.createHall("sala2",5,5);
-        Date date = new GregorianCalendar(2025, Calendar.MARCH, 1, 15, 30).getTime();
+    public void ticketCrudWorks() {
+        // create client, movie, screening
+        Instant dob = atDate(1995, Calendar.FEBRUARY, 2);
+        Client client = clientManager.registerClient("Alice", "Smith", "alice@example.com", dob);
+        Movie movie = movieManager.createMovie("Ticket Movie", Duration.ofMinutes(100), "Comedy", 9.0, "Dir");
+        ScreeningByMovie screening = screeningManager.createScreening(movie, "Main Hall", Instant.now());
 
-        Assertions.assertEquals(0, screeningManager.getScreeningCount());
+        // create ticket
+        TicketByScreening ticket = ticketManager.createTicket(screening, client, 1, 1);
+        Assertions.assertNotNull(ticket);
 
-        Assertions.assertDoesNotThrow(()-> {;
-            screeningManager.createScreening(movie, hall, date);
-        });
+        List<TicketByScreening> tickets = ticketManager.getByScreening(screening.getScreeningId());
+        Assertions.assertTrue(tickets.stream().anyMatch(t -> t.getClientId().equals(client.getClientId())));
 
-        Assertions.assertEquals(1, screeningManager.getScreeningCount());
+        // update
+        ticketManager.update(ticket);
 
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            screeningManager.createScreening(movie, hall, date);
-        });
-
-        Assertions.assertEquals(1, screeningManager.getScreeningCount());
-
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            screeningManager.createScreening(movie, hall,
-                    new GregorianCalendar(
-                            2025, Calendar.MARCH, 1,
-                            16, 0
-                    ).getTime()
-            );
-        });
-
-        Assertions.assertEquals(1, screeningManager.getScreeningCount());
-
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            screeningManager.createScreening(movie, hall,
-                    new GregorianCalendar(
-                            2025, Calendar.MARCH, 1,
-                            17, 30
-                    ).getTime()
-            );
-        });
-
-        Assertions.assertEquals(1, screeningManager.getScreeningCount());
-
-        Assertions.assertDoesNotThrow(() -> {
-            screeningManager.createScreening(movie, hall,
-                    new GregorianCalendar(
-                            2025, Calendar.MARCH, 1,
-                            17, 31
-                    ).getTime()
-            );
-        });
-
-        Assertions.assertEquals(2, screeningManager.getScreeningCount());
-
-
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            screeningManager.createScreening(movie, hall,
-                    new GregorianCalendar(
-                            2025, Calendar.MARCH, 1,
-                            13, 30
-                    ).getTime()
-            );
-        });
-
-        Assertions.assertEquals(2, screeningManager.getScreeningCount());
-
-        Assertions.assertDoesNotThrow(() -> {
-            screeningManager.createScreening(movie, hall,
-                    new GregorianCalendar(
-                            2025, Calendar.MARCH, 1,
-                            13, 29
-                    ).getTime()
-            );
-        });
-
-        Assertions.assertEquals(3, screeningManager.getScreeningCount());
-
-        Movie longMovie = movieManager.createMovie(
-                "Resan (The Journey)",
-                Duration.ofMinutes(873),
-                "Documentary",
-                15.0,
-                "Peter",
-                "Watkins"
-        );
-
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            screeningManager.createScreening(longMovie, hall,
-                    new GregorianCalendar(
-                            2025, Calendar.MARCH, 1,
-                            10, 0
-                    ).getTime()
-            );
-        });
-
-        Assertions.assertEquals(3, screeningManager.getScreeningCount());
-
-        Assertions.assertDoesNotThrow(() -> {
-            screeningManager.createScreening(movie, hall2,
-                    new GregorianCalendar(
-                            2025, Calendar.MARCH, 1,
-                            15, 30
-                    ).getTime()
-            );
-        });
-
-        Assertions.assertEquals(4, screeningManager.getScreeningCount());
-
+        // delete
+        ticketManager.delete(ticket);
+        List<TicketByScreening> afterDelete = ticketManager.getByScreening(screening.getScreeningId());
+        Assertions.assertFalse(afterDelete.stream().anyMatch(t -> t.getClientId().equals(client.getClientId())));
     }
 
     @Test
-    void createHallTest(){
-        Hall hall = hallManager.createHall("Main Hall", 20, 15);
-        Assertions.assertEquals("Main Hall", hall.getName());
-        Assertions.assertEquals(20, hall.getColumns());
-        Assertions.assertEquals(15, hall.getRows());
-        List<Hall> hallList = hallManager.getAll();
-        Assertions.assertEquals(1, hallList.size());
-        Assertions.assertEquals("Main Hall", hallList.getFirst().getName());
-        Assertions.assertEquals(20, hallList.getFirst().getColumns());
-        Assertions.assertEquals(15, hallList.getFirst().getRows());
+    public void ticketDoubleBookingFails() {
+        Instant dob = atDate(1992, Calendar.MARCH, 3);
+        Client clientA = clientManager.registerClient("Bob", "A", "bob.a@example.com", dob);
+        Client clientB = clientManager.registerClient("Bob", "B", "bob.b@example.com", dob);
+        Movie movie = movieManager.createMovie("DoubleBook", Duration.ofMinutes(95), "Thriller", 7.0, "Dir");
+        ScreeningByMovie screening = screeningManager.createScreening(movie, "Hall X", Instant.now());
+
+        // first purchase should succeed
+        TicketByScreening ticket1 = ticketManager.createTicket(screening, clientA, 2, 2);
+        Assertions.assertNotNull(ticket1);
+
+        // second purchase for same seat should throw
+        Assertions.assertThrows(IllegalArgumentException.class, () -> ticketManager.createTicket(screening, clientB, 2, 2));
     }
 
-    @Test
-    void createTicketTest() {
-        Movie movie = movieManager.createMovie("Inception", Duration.ofMinutes(148), "Sci-Fi", 12.0, "Christopher", "Nolan");
-        Hall hall = hallManager.createHall("IMAX", 15, 10);
-        Date screeningDate = new GregorianCalendar(2024, Calendar.DECEMBER, 20, 20, 0).getTime();
-        ScreeningByMovie screeningByMovie = screeningManager.createScreening(movie, hall, screeningDate);
-        Client client = clientManager.registerClient(
-                "Alice",
-                "Johnson",
-                "alice.johnson@example2.com",
-                new GregorianCalendar(1990, Calendar.JANUARY, 5).getTime(),
-                new Address("New York", "10001", "5th Avenue", "1A")
-        );
-        ticketManager.createTicket(screeningByMovie, client, 5, 7);
-        List<TicketByScreening> ticketByScreeningList = ticketManager.getAll();
-        Assertions.assertEquals(1, ticketByScreeningList.size());
-        Assertions.assertEquals(screeningByMovie, ticketByScreeningList.getFirst().getScreening());
-        Assertions.assertEquals(client, ticketByScreeningList.getFirst().getClient());
-        Assertions.assertEquals(7, ticketByScreeningList.getFirst().getSeatColumn());
-        Assertions.assertEquals(5, ticketByScreeningList.getFirst().getSeatRow());
-
-        Assertions.assertDoesNotThrow(()-> {;
-            ticketManager.createTicket(screeningByMovie, client, 0, 0);
-        });
-
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            ticketManager.createTicket(screeningByMovie, client, -1, 0);
-        });
-
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            ticketManager.createTicket(screeningByMovie, client, 0, -1);
-        });
-
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            ticketManager.createTicket(screeningByMovie, client, hall.getColumns(), 0);
-        });
-
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            ticketManager.createTicket(screeningByMovie, client, 0, hall.getColumns());
-        });
-
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            ticketManager.createTicket(screeningByMovie, client, 0, 0);
-        });
-    }
 }
