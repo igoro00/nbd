@@ -25,7 +25,6 @@ CREATE TABLE IF NOT EXISTS movies (
 );
 
 -- Table: screenings_by_movie
--- Optimized for: "Give me all screenings for a specific movie"
 CREATE TABLE IF NOT EXISTS screenings_by_movie (
     movie_id uuid,
     screening_id uuid,
@@ -37,8 +36,6 @@ CREATE TABLE IF NOT EXISTS screenings_by_movie (
 ) WITH CLUSTERING ORDER BY (screening_id ASC);
 
 -- Table: tickets_by_screening
--- Optimized for: "Give me all tickets/seats for a specific screening"
--- Clustering columns ensure seats are ordered logically.
 CREATE TABLE IF NOT EXISTS tickets_by_screening (
     screening_id uuid,
     seat_column int,

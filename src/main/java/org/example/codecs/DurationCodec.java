@@ -29,7 +29,6 @@ public class DurationCodec implements TypeCodec<Duration> {
     @Override
     public ByteBuffer encode(@Nullable Duration value, @NonNull com.datastax.oss.driver.api.core.ProtocolVersion protocolVersion) {
         if (value == null) return null;
-        // Convert java.time.Duration to CqlDuration (0 months, 0 days, total nanos)
         CqlDuration cqlDuration = CqlDuration.newInstance(0, 0, value.toNanos());
         return TypeCodecs.DURATION.encode(cqlDuration, protocolVersion);
     }
@@ -39,7 +38,6 @@ public class DurationCodec implements TypeCodec<Duration> {
     public Duration decode(@Nullable ByteBuffer bytes, @NonNull com.datastax.oss.driver.api.core.ProtocolVersion protocolVersion) {
         CqlDuration cqlDuration = TypeCodecs.DURATION.decode(bytes, protocolVersion);
         if (cqlDuration == null) return null;
-        // Note: This ignores months/days stored in Cassandra if they exist
         return Duration.ofNanos(cqlDuration.getNanoseconds());
     }
 

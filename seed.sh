@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Configuration
-CONTAINER_NAME="nbd-cassandra1-1"
+CONTAINER_NAME="cassandra1"
 USER="cassandra"
 PASS="cassandrapassword"
 SCHEMA_FILE="./schema.cql"
