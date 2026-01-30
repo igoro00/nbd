@@ -41,6 +41,8 @@ public class MovieRepositoryCacheDecorator extends AbstractCacheDecorator<Movie>
 		try (Jedis jedis = redisManager.getResource()) {
 			jedis.del(keyAll());
 			jedis.del(keyCount());
+		} catch (JedisConnectionException ignored) {
+			// Ignore if Redis is unavailable
 		}
 	}
 
@@ -48,6 +50,8 @@ public class MovieRepositoryCacheDecorator extends AbstractCacheDecorator<Movie>
 	public void invalidateOne(ObjectId id) {
 		try (Jedis jedis = redisManager.getResource()) {
 			jedis.del(keyById(id));
+		} catch (JedisConnectionException ignored) {
+			// Ignore if Redis is unavailable
 		}
 	}
 
@@ -68,20 +72,19 @@ public class MovieRepositoryCacheDecorator extends AbstractCacheDecorator<Movie>
 		try (Jedis jedis = redisManager.getResource()) {
 			String json = jedis.get(key);
 			if (json != null) {
-				Movie[] arr = gson.fromJson(json, Movie[].class);
-				return Arrays.asList(arr);
+				return Arrays.asList(gson.fromJson(json, Movie[].class));
 			}
 		} catch (JedisConnectionException e) {
 			return delegate.findAll();
 		}
 
-		List<Movie> list = delegate.findAll();
+		List<Movie> all = delegate.findAll();
 
 		try (Jedis jedis = redisManager.getResource()) {
-			jedis.setex(key, ttlSeconds, gson.toJson(list));
-		}
+			jedis.setex(key, ttlSeconds, gson.toJson(all));
+		} catch (JedisConnectionException ignored) {}
 
-		return list;
+		return all;
 	}
 
 	@Override
@@ -98,10 +101,11 @@ public class MovieRepositoryCacheDecorator extends AbstractCacheDecorator<Movie>
 		}
 
 		Movie movie = delegate.findById(id);
+
 		if (movie != null) {
 			try (Jedis jedis = redisManager.getResource()) {
 				jedis.setex(key, ttlSeconds, gson.toJson(movie));
-			}
+			} catch (JedisConnectionException ignored) {}
 		}
 
 		return movie;
@@ -112,20 +116,21 @@ public class MovieRepositoryCacheDecorator extends AbstractCacheDecorator<Movie>
 		String key = keyCount();
 
 		try (Jedis jedis = redisManager.getResource()) {
-			String cache = jedis.get(key);
-			if (cache != null) {
-				return Long.parseLong(cache);
+			String cached = jedis.get(key);
+			if (cached != null) {
+				try {
+					return Long.parseLong(cached);
+				} catch (NumberFormatException ignored) {}
 			}
 		} catch (JedisConnectionException e) {
 			return delegate.countAll();
 		}
 
 		long count = delegate.countAll();
-
 		try (Jedis jedis = redisManager.getResource()) {
 			jedis.setex(key, ttlSeconds, String.valueOf(count));
+		} catch (JedisConnectionException ignored) {
 		}
-
 		return count;
 	}
 }

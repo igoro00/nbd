@@ -121,11 +121,10 @@ public class HallRepositoryCacheDecorator extends AbstractCacheDecorator<Hall> {
 		}
 
 		long count = delegate.countAll();
-
 		try (Jedis jedis = redisManager.getResource()) {
 			jedis.setex(key, ttlSeconds, String.valueOf(count));
-		} catch (JedisConnectionException ignored) {}
-
+		} catch (JedisConnectionException ignored) {
+		}
 		return count;
 	}
 }
