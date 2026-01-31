@@ -1,5 +1,6 @@
 package org.example.managers;
 
+import org.bson.types.ObjectId;
 import org.example.repositories.AbstractRepository;
 import org.example.repositories.MovieRepository;
 import org.example.model.Movie;
@@ -25,6 +26,7 @@ public class MovieManager implements AutoCloseable {
     ) {
         Director director = new Director(directorFirstName, directorLastName);
         Movie newMovie = new Movie(title, timeDuration, category, basicPrice, director);
+        newMovie.setEntityId(new ObjectId());
         return repository.add(newMovie);
     }
 

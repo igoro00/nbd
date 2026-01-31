@@ -36,7 +36,7 @@ public class ClientCacheBenchmark {
         redisManager = new RedisManager();
         ClientRepository mongoRepo = new ClientRepository();
         cacheDecorator = new ClientRepositoryCacheDecorator(mongoRepo, redisManager);
-        Client testClient = new Client("Benchmark", "Client", "bench@test.pl", new Date(), address);
+        Client testClient = new Client("Benchmark", "Client", new Date(),"bench@test.pl", address);
         mongoRepo.add(testClient);
         testId = testClient.getEntityId();
         try (Jedis jedis = redisManager.getResource()) {

@@ -1,43 +1,26 @@
 package org.example.model;
 
+import lombok.*;
 import org.bson.codecs.pojo.annotations.BsonCreator;
 import org.bson.codecs.pojo.annotations.BsonProperty;
 import org.bson.types.ObjectId;
 
+@Getter
+@NoArgsConstructor
+@EqualsAndHashCode(callSuper = true)
 public class Ticket extends AbstractEntity {
+    @Setter
     @BsonProperty("client")
     private Client client;
 
     @BsonProperty("screening")
     private Screening screening;
 
-    @BsonProperty("seat_column")
-    private int seatColumn;
-
     @BsonProperty("seat_row")
     private int seatRow;
 
-    @BsonCreator
-    public Ticket(
-            @BsonProperty("_id") ObjectId entityId,
-            @BsonProperty("screening") Screening screening,
-            @BsonProperty("client") Client client,
-            @BsonProperty("seat_column") int seatColumn,
-            @BsonProperty("seat_row") int seatRow) {
-        super(entityId);
-        this.setClient(client);
-        this.setScreening(screening, seatRow, seatColumn);
-    }
-
-    public Ticket(Screening screening, Client client, int seatColumn, int seatRow) {
-        super(new ObjectId());
-        this.setClient(client);
-        this.setScreening(screening, seatRow, seatColumn);
-    }
-
-    public int getSeatColumn() {
-        return seatColumn;
-    }
+    @BsonProperty("seat_column")
+    private int seatColumn;
 
     public void setSeatColumn(int seatColumn) {
         if (seatColumn < 0 || seatColumn >= this.getScreening().getHall().getColumns()) {
@@ -45,10 +28,6 @@ public class Ticket extends AbstractEntity {
         }
 
         this.seatColumn = seatColumn;
-    }
-
-    public int getSeatRow() {
-        return seatRow;
     }
 
     public void setSeatRow(int seatRow) {
@@ -59,37 +38,27 @@ public class Ticket extends AbstractEntity {
         this.seatRow = seatRow;
     }
 
-    public Screening getScreening() {
-        return this.screening;
-    }
-
     public void setScreening(Screening screening, int seatRow, int seatColumn) {
         this.screening = screening;
         this.setSeatRow(seatRow);
         this.setSeatColumn(seatColumn);
     }
 
-    public Client getClient() {
-        return client;
+    public Ticket(Client client, Screening screening, int seatRow, int seatColumn) {
+        this.setClient(client);
+        this.setScreening(screening, seatRow, seatColumn);
     }
 
-    public void setClient(Client client) {
-        this.client = client;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null) return false;
-        if (getClass() != o.getClass()) return false;
-
-        Ticket ticket = (Ticket) o;
-
-        if (seatColumn != ticket.seatColumn) return false;
-        if (seatRow != ticket.seatRow) return false;
-        if (!client.equals(ticket.client)) return false;
-        if (!screening.equals(ticket.screening)) return false;
-
-        return true;
+    @BsonCreator
+    public Ticket(
+            @BsonProperty("_id") ObjectId id,
+            @BsonProperty("client") Client client,
+            @BsonProperty("screening") Screening screening,
+            @BsonProperty("seat_row") int seatRow,
+            @BsonProperty("seat_column") int seatColumn
+    ) {
+        this.setEntityId(id);
+        this.setClient(client);
+        this.setScreening(screening, seatRow, seatColumn);
     }
 }

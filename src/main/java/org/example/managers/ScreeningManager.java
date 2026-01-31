@@ -1,5 +1,6 @@
 package org.example.managers;
 
+import org.bson.types.ObjectId;
 import org.example.model.Hall;
 import org.example.model.Movie;
 import org.example.model.Screening;
@@ -24,7 +25,9 @@ public class ScreeningManager implements AutoCloseable {
     }
 
     public Screening createScreening(Movie movie, Hall hall, Date screeningDate) {
-        return repository.add(new Screening(movie, hall, screeningDate));
+        Screening screening = new Screening(movie, hall, screeningDate);
+        screening.setEntityId(new ObjectId());
+        return repository.add(screening);
     }
 
     @Override

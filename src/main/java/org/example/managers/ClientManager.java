@@ -1,6 +1,7 @@
 package org.example.managers;
 
 import lombok.Getter;
+import org.bson.types.ObjectId;
 import org.example.model.Hall;
 import org.example.repositories.AbstractRepository;
 import org.example.repositories.ClientRepository;
@@ -17,8 +18,10 @@ public class ClientManager implements AutoCloseable {
     public ClientManager(AbstractRepository<Client> repository) {
         this.repository = repository;
     }
+
     public Client registerClient(String firstName, String lastName, String email, Date dateOfBirth, Address address) {
-        Client newClient = new Client(firstName, lastName, email, dateOfBirth, address);
+        Client newClient = new Client(firstName, lastName, dateOfBirth, email, address);
+        newClient.setEntityId(new ObjectId());
         return repository.add(newClient);
     }
 

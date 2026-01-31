@@ -1,46 +1,17 @@
 package org.example.model;
 
-import org.bson.codecs.pojo.annotations.BsonCreator;
+import lombok.*;
 import org.bson.codecs.pojo.annotations.BsonProperty;
 
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@EqualsAndHashCode()
 public class Director {
     @BsonProperty("first_name")
     private String firstName;
 
     @BsonProperty("last_name")
     private String lastName;
-
-    @BsonCreator
-    public Director(
-            @BsonProperty("first_name") String firstName,
-            @BsonProperty("last_name") String lastName) {
-        this.firstName = firstName;
-        this.lastName = lastName;
-    }
-
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Director director = (Director) o;
-        if (!firstName.equals(director.firstName)) return false;
-        if (!lastName.equals(director.lastName)) return false;
-        return true;
-    }
 }
