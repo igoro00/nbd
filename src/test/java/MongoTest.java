@@ -1,7 +1,6 @@
 import org.example.managers.*;
 import org.example.model.*;
 import org.example.model.Client;
-import org.example.model.Director;
 import org.example.repositories.*;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -14,7 +13,7 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 
-class ExampleTest {
+class MongoTest {
     private ClientManager clientManager;
     private MovieManager movieManager;
     private HallManager hallManager;

@@ -7,20 +7,16 @@ import com.mongodb.client.ClientSession;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoDatabase;
-import com.mongodb.client.model.ValidationAction;
-import com.mongodb.client.model.ValidationLevel;
-import com.mongodb.client.model.ValidationOptions;
 import lombok.Getter;
-import org.bson.Document;
 import org.bson.UuidRepresentation;
 import org.bson.codecs.configuration.CodecRegistries;
 import org.bson.codecs.configuration.CodecRegistry;
 import org.bson.codecs.pojo.Conventions;
 import org.bson.codecs.pojo.PojoCodecProvider;
+import org.example.codecs.CodecRegistryFactory;
 import org.example.codecs.CustomCodecProvider;
 import org.example.model.AbstractEntity;
 
-import java.util.Arrays;
 import java.util.List;
 
 public abstract class AbstractMongoRepository<T extends AbstractEntity> extends AbstractRepository<T> implements AutoCloseable {
@@ -28,12 +24,9 @@ public abstract class AbstractMongoRepository<T extends AbstractEntity> extends 
             "mongodb://mongodb1:27017,mongodb2:27017,mongodb3:27017/?replicaSet=replica_set_single");
     private final MongoCredential credential = MongoCredential.createCredential(
             "admin", "admin", "adminpassword".toCharArray());
-    private final CodecRegistry pojoCodecRegistry = CodecRegistries.fromProviders(
-            PojoCodecProvider.builder()
-                    .automatic(true)
-                    .conventions(List.of(Conventions.ANNOTATION_CONVENTION))
-                    .build());
+
     private MongoClient mongoClient;
+
     @Getter
     private MongoDatabase mongoDatabase;
 
@@ -42,12 +35,7 @@ public abstract class AbstractMongoRepository<T extends AbstractEntity> extends 
                 .credential(credential)
                 .applyConnectionString(connectionString)
                 .uuidRepresentation(UuidRepresentation.STANDARD)
-                .codecRegistry(CodecRegistries.fromRegistries(
-                        CodecRegistries.fromProviders(new CustomCodecProvider()),
-                        CodecRegistries.fromProviders(PojoCodecProvider.builder().build()),
-                        MongoClientSettings.getDefaultCodecRegistry(),
-                        pojoCodecRegistry
-                ))
+                .codecRegistry(CodecRegistryFactory.getCodecRegistry())
                 .build();
         mongoClient = MongoClients.create(settings);
         mongoDatabase = mongoClient.getDatabase("absolute_cinema");

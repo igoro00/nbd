@@ -19,7 +19,6 @@ public class TicketManager implements AutoCloseable {
     public Ticket createTicket(Screening screening, Client client, int seatRow, int seatColumn) {
         try {
             Ticket ticket = new Ticket(client, screening, seatRow, seatColumn);
-            ticket.setEntityId(new ObjectId());
             return repository.add(ticket);
         } catch (MongoWriteException e) {
             throw new IllegalArgumentException(e);

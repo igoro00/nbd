@@ -45,6 +45,7 @@ public class Ticket extends AbstractEntity {
     }
 
     public Ticket(Client client, Screening screening, int seatRow, int seatColumn) {
+        super(new ObjectId());
         this.setClient(client);
         this.setScreening(screening, seatRow, seatColumn);
     }
