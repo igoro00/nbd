@@ -14,12 +14,16 @@ import org.bson.types.ObjectId;
 import org.example.codecs.CodecRegistryFactory;
 import org.example.codecs.ObjectIdSerializer;
 import org.example.model.Ticket;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Properties;
 
 public class TicketProducer implements AutoCloseable {
-    private KafkaProducer<ObjectId, String> producer;
+    private final KafkaProducer<ObjectId, String> producer;
     private final CodecRegistry codecRegistry = CodecRegistryFactory.getCodecRegistry();
+
+    private static final Logger logger = LoggerFactory.getLogger(TicketProducer.class);
 
     public TicketProducer() {
         Properties props = new Properties();
@@ -32,20 +36,24 @@ public class TicketProducer implements AutoCloseable {
         producer = new KafkaProducer<>(props);
     }
 
-    public void send(Ticket ticket) {
+    String toJSON(Ticket ticket) {
         BsonDocument bsonDocument = new BsonDocument();
         EncoderContext encoderContext = EncoderContext.builder().build();
-        Codec<Ticket> codec =  codecRegistry.get(Ticket.class);
+        Codec<Ticket> codec = codecRegistry.get(Ticket.class);
         try (BsonDocumentWriter writer = new BsonDocumentWriter(bsonDocument)) {
             codec.encode(writer, ticket, encoderContext);
+            return bsonDocument.toJson();
+        }
+    }
 
-            String json = bsonDocument.toJson();
-
+    public void send(Ticket ticket) {
+        try{
+            String json = toJSON(ticket);
             ProducerRecord<ObjectId, String> record = new ProducerRecord<>(KafkaConfig.TOPIC, ticket.getEntityId(), json);
             RecordMetadata meta = producer.send(record).get();
-            System.out.println("Wysłano: " + ticket.getEntityId() + " -> partycja " + meta.partition());
+            logger.info("Produced ticket {} on partition {}", ticket.getEntityId(), meta.partition());
         } catch (Exception e) {
-            System.err.println("Błąd wysyłania: " + e.getMessage());
+            logger.error("Error while producing ticket {}: {}", ticket.getEntityId(), String.valueOf(e));
         }
     }
 

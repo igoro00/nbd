@@ -3,14 +3,12 @@ import org.example.kafka.TicketProducer;
 import org.example.managers.TicketManager;
 import org.example.model.*;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.timeout;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -83,28 +81,29 @@ public class KafkaTest {
         consumer2.start();
         producer.send(exampleTicket);
 
-        Mockito.verify(ticketManager, timeout(5000)).createTicket(exampleTicket);
+        Mockito.verify(ticketManager, timeout(5000).times(1)).createTicket(exampleTicket);
     }
 
     @Test
     void idempotencyTest() throws InterruptedException {
-        Ticket exampleTicket = createExampleTicket();
         consumer1.start();
         consumer2.start();
-        producer.send(exampleTicket);
-        Mockito.verify(ticketManager, timeout(5000)).createTicket(exampleTicket);
+
+        Ticket oldTicket = createExampleTicket();
+        producer.send(oldTicket);
+        Mockito.verify(ticketManager, timeout(5000).times(1)).createTicket(oldTicket);
+
         consumer1.close();
         consumer2.close();
+
         Mockito.clearInvocations(ticketManager);
 
         consumer1.start();
         consumer2.start();
         Ticket newTicket = createExampleTicket();
-        assertNotEquals(exampleTicket, newTicket);
+        assertNotEquals(oldTicket, newTicket);
         producer.send(newTicket);
 
-        ArgumentCaptor<Ticket> captor = ArgumentCaptor.forClass(Ticket.class);
-        Mockito.verify(ticketManager, timeout(5000).atLeastOnce()).createTicket(captor.capture());
-        assertThat(captor.getAllValues()).doesNotContain(exampleTicket).contains(newTicket);
+        Mockito.verify(ticketManager, timeout(5000).times(1)).createTicket(newTicket);
     }
 }

@@ -1,5 +1,6 @@
 package org.example.kafka;
 
+import lombok.Getter;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
@@ -33,6 +34,8 @@ public class TicketConsumer implements AutoCloseable{
     private final KafkaConsumer<ObjectId, String> consumer;
     private final TicketManager ticketManager;
     private final String id;
+
+    @Getter
     private Thread thread;
 
     public TicketConsumer(String id, TicketManager ticketManager) {
@@ -46,18 +49,16 @@ public class TicketConsumer implements AutoCloseable{
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, ObjectIdDeserializer.class.getName());
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
         props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "latest");
-
         consumer = new KafkaConsumer<>(props);
-        logger.info("Constructed {}", id);
-
+        logger.info("[{}] constructed", id);
     }
 
     public void start() {
-        logger.info("Starting {}", id);
+        logger.info("[{}] starting", id);
         consumer.subscribe(List.of(KafkaConfig.TOPIC));
         consumer.poll(Duration.ZERO);
 
-        logger.info("Starting thread for {}", id);
+        logger.info("[{}] starting thread", id);
         this.thread = new Thread(this::consume);
         thread.start();
     }
@@ -71,7 +72,7 @@ public class TicketConsumer implements AutoCloseable{
         consumer.unsubscribe();
     }
 
-    public Ticket parse(String json){
+    public Ticket fromJSON(String json){
         BsonDocument bsonDocument = BsonDocument.parse(json);
         Codec<Ticket> codec = codecRegistry.get(Ticket.class);
 
@@ -85,14 +86,19 @@ public class TicketConsumer implements AutoCloseable{
             while (true) {
                 ConsumerRecords<ObjectId, String> records = consumer.poll(Duration.ofSeconds(1));
                 for (ConsumerRecord<ObjectId, String> record : records) {
-                    Ticket ticket = parse(record.value());
-                    ticketManager.createTicket(ticket);
-                    System.out.println("[" + id + "] Zapisano: " + ticket.getEntityId() + " (partycja " + record.partition() + ")");
+                    Ticket ticket = fromJSON(record.value());
+                    try{
+                        ticketManager.createTicket(ticket);
+                    } catch (Exception e){
+                        logger.error(String.valueOf(e));
+                    }
+                    Set<TopicPartition> assignment = consumer.assignment();
+                    logger.info("[{}] Saved ticket {} from partition {} (assigned partitions: {})", id, ticket.getEntityId(), record.partition(), assignment);
                     consumer.commitSync();
                 }
             }
         } catch (WakeupException e) {
-            System.out.println("Wyłączono " + id);
+            logger.info("[{}] woke up. Closing...", id);
         }
     }
 }
