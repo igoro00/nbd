@@ -1,7 +1,6 @@
 package org.example.managers;
 
 import com.mongodb.MongoWriteException;
-import org.bson.types.ObjectId;
 import org.example.model.Screening;
 import org.example.model.Ticket;
 import org.example.model.Client;
@@ -19,6 +18,14 @@ public class TicketManager implements AutoCloseable {
     public Ticket createTicket(Screening screening, Client client, int seatRow, int seatColumn) {
         try {
             Ticket ticket = new Ticket(client, screening, seatRow, seatColumn);
+            return repository.add(ticket);
+        } catch (MongoWriteException e) {
+            throw new IllegalArgumentException(e);
+        }
+    }
+
+    public Ticket createTicket(Ticket ticket){
+        try {
             return repository.add(ticket);
         } catch (MongoWriteException e) {
             throw new IllegalArgumentException(e);

@@ -17,7 +17,7 @@ import org.example.model.Ticket;
 
 import java.util.Properties;
 
-public class TicketProducer implements AutoCloseable{
+public class TicketProducer implements AutoCloseable {
     private KafkaProducer<ObjectId, String> producer;
     private final CodecRegistry codecRegistry = CodecRegistryFactory.getCodecRegistry();
 

@@ -3,6 +3,7 @@
   <component name="EntryPointsManager">
     <writeAnnotations>
       <writeAnnotation name="jakarta.persistence.PersistenceContext" />
+      <writeAnnotation name="org.bson.codecs.pojo.annotations.BsonProperty" />
       <writeAnnotation name="org.testcontainers.junit.jupiter.Container" />
     </writeAnnotations>
   </component>
